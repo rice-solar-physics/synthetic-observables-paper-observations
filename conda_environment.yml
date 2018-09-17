@@ -1,0 +1,24 @@
+# Before publishing, all of these versions need to be pinned!
+name: synthesized-timelags
+channels:
+- defaults
+- conda-forge
+dependencies:
+- python=3.6
+- numpy
+- numba
+- scipy
+- matplotlib
+- h5py
+- astropy
+- sunpy>=0.9.2
+- scikit-learn
+- dask
+- dask-ml
+- distributed=1.22.0
+- ipywidgets
+- yt
+- pip:
+  - plasmapy
+  - git+git://github.com/wtbarnes/fiasco.git
+  - git+git://github.com/wtbarnes/synthesizAR.git
