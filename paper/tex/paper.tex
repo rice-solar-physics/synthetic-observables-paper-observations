@@ -1,0 +1,105 @@
+%% Use AASTeX class, version 6.1
+%% Allow for additional class options such as,
+%%  twocolumn   : two text columns, 10 point font, single spaced article.
+%%                This is the most compact and represent the final published
+%%                derived PDF copy of the accepted manuscript from the publisher
+%%  manuscript  : one text column, 12 point font, double spaced article.
+%%  preprint    : one text column, 12 point font, single spaced article.  
+%%  preprint2   : two text columns, 12 point font, single spaced article.
+%%  modern      : a stylish, single text column, 12 point font, article with
+%% 		            wider left and right margins. This uses the Daniel
+%% 		            Foreman-Mackey and David Hogg design.
+%%  astrosymb    : Loads Astrosymb font and define \astrocommands. 
+%%  tighten      : Makes baselineskip slightly smaller, only works with 
+%%                 the twocolumn substyle.
+%%  times        : uses times font instead of the default
+%%  linenumbers  : turn on lineno package.
+%%  trackchanges : required to see the revision mark up and print its output
+%%  longauthor   : Do not use the more compressed footnote style (default) for 
+%%                 the author/collaboration/affiliations. Instead print all
+%%                 affiliation information after each name. Creates a much
+%%                 long author list but may be desirable for short author papers
+
+\documentclass[preprint,linenumbers]{aastex62}
+    %% Include packages
+    \usepackage{amsmath}
+    \usepackage{calc}
+    %% Custom commands
+    \DeclareMathOperator*{\argmax}{arg\,max} % in your preamble
+    \newcommand{\AR}{active region}
+    \newcommand{\dem}{$\mathrm{EM}(T)$}
+    % Overriding plotting macros because I don't want TeX scaling my figures at all
+    \renewcommand\plotone[1]{%
+        \centering
+        \includegraphics[]{#1}
+    }
+    \newlength\graphicwidth
+    \def\myfig#1#2{%
+        \setlength\graphicwidth{\widthof{\includegraphics{#1}}}
+        \hfill\vbox{\parskip=0pt\hsize=\graphicwidth
+        \includegraphics{#1}\vskip2pt\vtop{\centering
+        \footnotesize
+        \hsize=\graphicwidth
+        #2\vskip1pt
+        }}\hfill
+    }
+    \renewcommand{\sectionautorefname}{Section}
+    \renewcommand{\subsectionautorefname}{Section}
+    \renewcommand{\subsubsectionautorefname}{Section}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Body                                      %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{document}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Title and Authors                         %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \title{Understanding Heating Frequency in Active Region Cores through Synthetic Observables II. Classifying Observations}
+    \author[0000-0001-9642-6089]{W. T. Barnes}
+    \author{S. J. Bradshaw}
+    \affiliation{Department of Physics \& Astronomy, Rice University, Houston, TX 77005-1827}
+    \author{N. M. Viall}
+    \affiliation{NASA Goddard Space Flight Center, Greenbelt, MD 20771}
+    \correspondingauthor{W. T. Barnes}
+    \email{will.t.barnes@rice.edu}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Abstract                                  %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{abstract}
+    The abstract will go here.
+    \end{abstract}
+    %% Keywords
+    \keywords{Sun,corona,nanoflares,active regions}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Sections                                  %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \input{sections/intro}
+    \input{sections/results}
+    \input{sections/summary}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Acknowledgment                            %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \acknowledgments
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Software                                  %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \software{
+        Astropy\citep{the_astropy_collaboration_astropy_2018},
+        Dask\citep{dask_development_team_dask_2016},
+        Matplotlib\citep{hunter_matplotlib_2007},
+        NumPy\citep{oliphant_guide_2006},
+        scikit-learn\citep{},
+        seaborn\citep{waskom_seaborn_2018-2},
+        SunPy\citep{sunpy_community_sunpypython_2015},
+        yt\citep{turk_yt_2011}
+    }
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   Appendix                                  %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %\appendix
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                   References                                %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \bibliographystyle{aasjournal.bst}
+    \bibliography{references.bib}
+    \end{document}
+    
