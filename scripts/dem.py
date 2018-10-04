@@ -9,7 +9,7 @@ import matplotlib.colors
 import astropy.units as u
 import hissw
 
-from synthesizAR.maps import EMCube
+from synthesizAR.analysis.dem import EMCube
 
 __all__ = ['GenericModel', 'IDLModel', 'HannahKontarModel']
 
