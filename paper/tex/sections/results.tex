@@ -1,18 +1,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                   Results                                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}\label{results}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Timelags}\label{timelags}
+\subsection{Timelags}\label{timelags}
 
 \begin{figure*}
-    %\plotone{../figures/observed_timelags.pdf}
-    \caption{Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. As in \autoref{fig:model_timelags}, the colorbar range from -5000 s to +5000 s.}
-    \label{fig:observed_timelags}
+    \plotone{../figures/timelag_maps.pdf}
+    \caption{Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. The colorbar range from -5000 s to +5000 s. Blues}
+    \label{fig:timelag_maps}
 \end{figure*}
 
 \begin{figure*}
-    %\plotone{../figures/observed_correlations.pdf}
-    \caption{Same as \autoref{fig:observed_timelags} except here we show the maximum value of the cross-correlation as derived from the observations.}
-    \label{fig:observed_correlations}
+    \plotone{../figures/correlation_maps.pdf}
+    \caption{Same as \autoref{fig:timelag_maps} except here we show the maximum value of the cross-correlation as derived from the observations.}
+    \label{fig:correlation_maps}
 \end{figure*}
 
 \authorcomment2{Discussion of observed timelags and cross-correlation values}
@@ -24,18 +28,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   EM Slopes                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Emission Measure Slopes}\label{em_slopes}
+\subsection{Emission Measure Slopes}\label{em_slopes}
 
-In addition to the timelag, we also compute the emission measure distribution (\dem) using the method of \citet{hannah_differential_2012} using both our simulated and observed AIA data. \dem provides a measure of how much plasma is emitting over a range of temperatures and has been used by many workers to assess heating frequency in \AR{} cores \citep[][and references therein]{tripathi_emission_2011,warren_constraints_2011,warren_systematic_2012,schmelz_cold_2012,bradshaw_diagnosing_2012,reep_diagnosing_2013,barnes_inference_2016,barnes_inference_2016,barnes_inference_2016-1}. 
-
-A common technique is to fit a power-law $\mathrm{EM}(T)\sim T^a$ to \dem between approximately 1 and 4 MK and is effectively a measure of how isothermal the distribution is. Many workers \citep[see Table 3 of][and references therein]{bradshaw_diagnosing_2012} have found $2<a<5$. \citet{cargill_active_2014} used a range of waiting times dependent on the event energy (see \autoref{heating}) and found that he could account for the observed range of slopes. Thus, the \dem slope $a$ is one important diagnostic for assessing how often a single loop may be reheated. We compute $a$ between $10^6$ and $10^{6.6}$ K for each pixel in our \AR{}.
+\authorcomment1{Describe EM results, what we did specifically to get them, show histograms of slopes as well as maps; maybe have some comparison with models here, i.e. lay histograms on top of each other}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Pixel Classification                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Pixel Classification}\label{classify}
+\subsection{Pixel Classification}\label{classify}
 
-\authorcomment1{Describe random forest technique; how is data prepared; what is the RF actually doing}
+\authorcomment1{Describe random forest technique; how is data prepared; what is the RF actually doing; Description should be very detailed}
 
 \begin{figure*}
     %\plotone{../figures/probability_maps.pdf}
