@@ -7,6 +7,7 @@ Part 2 of a series of two papers on computing synthetic observables for various 
 * Emission measure slope map
 * Histogram of observed emission measure slopes overlaid on model EM slopes
 * Timelag maps for all 15 channel pairs
+* Cross-correlation maps for all 15 channel pairs
 * Classification probability maps (1x3 each so could be 1 3x3 figure)
   * EM slope
   * Timelag+cross-correlation
