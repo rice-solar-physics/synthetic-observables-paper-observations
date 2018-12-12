@@ -1,12 +1,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Data                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Data}\label{data}
+\section{Observations and Analysis}\label{observations}
+
+\begin{pycode}[manager_data]
+manager_data = texfigure.Manager(
+    pytex, './',
+    python_dir='python',
+    fig_dir='figures',
+    data_dir='data',
+    number=1,
+)
+\end{pycode}
 
 \authorcomment1{Describe data collection and prep procedures; can give brief description of timelag and em procedures, mostly just pointing to Paper 1}
 
 \begin{figure*}
-    \plotone{../figures/intensity_maps.pdf}
+    \plotone{figures/intensity_maps.pdf}
     \caption{Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.}
     \label{fig:intensity_maps}
 \end{figure*}
@@ -15,18 +25,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   EM Slopes                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Emission Measure Slopes}\label{em_slopes}
+\subsection{Emission Measure Slopes}\label{em_slopes}
+
+\begin{pycode}[manager_em]
+manager_em = texfigure.Manager(
+    pytex, './',
+    python_dir='python',
+    fig_dir='figures',
+    data_dir='data',
+    number=2,
+)
+from formatting import heating_palette
+\end{pycode}
 
 \authorcomment1{Describe EM results, what we did specifically to get them, show histograms of slopes as well as maps; maybe have some comparison with models here, i.e. lay histograms on top of each other}
 
 \begin{figure}
-    \plotone{../figures/em_slope_map.pdf}
+    \plotone{figures/em_slope_map.pdf}
     \caption{Map of emission measure slope as computed from the time-averaged observed intensities.}
     \label{fig:em_slope_map}
 \end{figure}
 
 \begin{figure}
-    \plotone{../figures/em_slope_histograms.pdf}
+    \plotone{figures/em_slope_histograms.pdf}
     \caption{Histogram of observed emission measure slope with model emission measure slopes overlaid.}
     \label{fig:em_slope_histogram}
 \end{figure}
@@ -34,16 +55,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Timelags}\label{timelags}
+\subsection{Timelags}\label{timelags}
+
+\begin{pycode}[manager_timelags]
+manager_timelags = texfigure.Manager(
+    pytex, './',
+    python_dir='python',
+    fig_dir='figures',
+    data_dir='data',
+    number=3,
+)
+\end{pycode}
 
 \begin{figure*}
-    \plotone{../figures/timelag_maps.pdf}
+    \plotone{figures/timelag_maps.pdf}
     \caption{Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. The colorbar range from -5000 s to +5000 s. Blues}
     \label{fig:timelag_maps}
 \end{figure*}
 
 \begin{figure*}
-    \plotone{../figures/correlation_maps.pdf}
+    \plotone{figures/correlation_maps.pdf}
     \caption{Same as \autoref{fig:timelag_maps} except here we show the maximum value of the cross-correlation as derived from the observations.}
     \label{fig:correlation_maps}
 \end{figure*}
