@@ -357,6 +357,3 @@ TSWLatexianTemp*
 
 # generated if using elsarticle.cls
 *.spl
-
-# Track paper figures
-!paper/figures/*.pdf
