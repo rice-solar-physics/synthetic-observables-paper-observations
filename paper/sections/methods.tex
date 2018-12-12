@@ -12,15 +12,54 @@ manager_data = texfigure.Manager(
     number=1,
 )
 \end{pycode}
-
 \authorcomment1{Describe data collection and prep procedures; can give brief description of timelag and em procedures, mostly just pointing to Paper 1}
 
-\begin{figure*}
-    \plotone{figures/intensity_maps.pdf}
-    \caption{Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.}
-    \label{fig:intensity_maps}
-\end{figure*}
-
+\begin{pycode}[manager_data]
+fits_files = [
+    'aia_lev1.5_20110212T153238_94_cutout.fits',
+    'aia_lev1.5_20110212T153245_131_cutout.fits',
+    'aia_lev1.5_20110212T153248_171_cutout.fits',
+    'aia_lev1.5_20110212T153243_193_cutout.fits',
+    'aia_lev1.5_20110212T153248_211_cutout.fits',
+    'aia_lev1.5_20110212T153239_335_cutout.fits',
+]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=2/3,
+    figure_width_context='columnwidth'
+))
+plt.subplots_adjust(hspace=0.03,wspace=0.03)
+for i,f in enumerate(fits_files):
+    m = Map(os.path.join(manager_data.data_dir, 'observations', f))
+    m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
+                 SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
+    ax = fig.add_subplot(2,3,i+1,projection=m)
+    norm = ImageNormalize(vmin=0, vmax=m.data.max(), stretch=SqrtStretch())
+    m.plot(axes=ax, title=False, annotate=False, norm=norm)
+    ax.grid(alpha=0)
+    lon,lat = ax.coords
+    lon.set_ticks(color='k',number=3)
+    lat.set_ticks(color='k',number=3)
+    if i < 3:
+        lon.set_ticklabel_visible(False)
+    if i%3 != 0:
+        lat.set_ticklabel_visible(False)
+    else:
+        lat.set_ticklabel(rotation='vertical')
+    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
+    ax.text(xtext.value, ytext.value, f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
+            color='w', fontsize=plt.rcParams['xtick.labelsize'])
+    if i == 3:
+        lon.set_axislabel('Helioprojective Longitude [arcsec]')
+        lat.set_axislabel('Helioprojective Latitude [arcsec]')
+fig_intensity_maps = manager_data.save_figure('intensity-maps')
+fig_intensity_maps.caption = r'Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.'
+fig_intensity_maps.figure_env_name = 'figure*'
+fig_intensity_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_intensity_maps.fig_str = fig_str
+\end{pycode}
+\py[manager_data]|fig_intensity_maps|
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   EM Slopes                                 %

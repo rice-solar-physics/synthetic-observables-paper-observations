@@ -20,7 +20,7 @@
 %%                 affiliation information after each name. Creates a much
 %%                 long author list but may be desirable for short author papers
 
-\documentclass[preprint2,linenumbers]{aastex62}
+\documentclass[modern,linenumbers]{aastex62}
 %% Include packages
 \usepackage{amsmath}
 \usepackage{calc}
@@ -65,7 +65,7 @@
 %                                   Body                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-% TeXFigure Manager
+% TeXFigure configuration
 \begin{pythontexcustomcode}{py}
 # Imports
 import os
@@ -112,6 +112,11 @@ fig_str = r"""
     \label{{{label}}}
 \end{{{figure_env_name}}}
 """
+# Flag for checking 2-column or 1-column format
+def is_onecolumn():
+	textwidth = float(pytex.context['textwidth'][:-2])
+	colwidth = float(pytex.context['columnwidth'][:-2])
+	return (2*colwidth) > textwidth
 \end{pythontexcustomcode}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Title and Authors                         %
@@ -131,7 +136,7 @@ fig_str = r"""
 The abstract will go here.
 \end{abstract}
 %% Keywords
-\keywords{Sun,corona,nanoflares,active regions}
+\keywords{Sun,corona,nanoflares,active regions,machine learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Sections                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
