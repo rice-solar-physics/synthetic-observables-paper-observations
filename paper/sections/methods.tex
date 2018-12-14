@@ -115,7 +115,7 @@ ax = fig.add_subplot(122,)
 bins = np.arange(1,6,0.05)
 colors = ['k'] + heating_palette()
 # Plot Model EM Slopes
-for i,h in enumerate(['observations', 'high_frequency', 'intermediate_frequency', 'low_frequency']):
+for i,h in enumerate(['observations'] + heating):
     d = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope.fits')).data.flatten()
     h,b,_ = ax.hist(
         d[~np.isnan(d)],
@@ -159,19 +159,117 @@ manager_timelags = texfigure.Manager(
     data_dir='data',
     number=3,
 )
+file_format = os.path.join(manager_timelags.data_dir, 'observations', '{}_{}_{}.fits')
+correlation_threshold = 0.1
 \end{pycode}
 
-\begin{figure*}
-    \plotone{figures/timelag_maps.pdf}
-    \caption{Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. The colorbar range from -5000 s to +5000 s. Blues}
-    \label{fig:timelag_maps}
-\end{figure*}
+\begin{pycode}[manager_timelags]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=3/5,
+    figure_width_context='columnwidth'
+))
+plot_params = {
+    'title': False, 
+    'annotate': False,
+    'vmin': -(5e3*u.s).to(u.s).value,
+    'vmax': (5e3*u.s).to(u.s).value,
+    'cmap': 'RdYlBu_r',
+}
+cax = fig.add_axes([0.125, 0.89, 0.775, 0.02])
+for i,cp in enumerate(channel_pairs):
+    m = Map(file_format.format('timelag', *cp))
+    mc = Map(file_format.format('correlation', *cp))
+    m = Map(m.data, m.meta, mask=np.where(mc.data<=correlation_threshold, True, False))
+    m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
+                 SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
+    ax = fig.add_subplot(3, 5, i+1, projection=m)
+    im = m.plot(axes=ax, **plot_params)
+    ax.grid(alpha=0)
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+    lon.set_ticks(number=3)
+    lat.set_ticks(number=3,) 
+    if i == 5:
+        lat.set_ticklabel(rotation='vertical',)
+        lat.set_axislabel(r'Helioprojective Latitude',)
+    else:
+        lat.set_ticklabel_visible(False)
+    if i == 11:
+        lon.set_axislabel(r'Helioprojective Longitude')
+    else:
+        lon.set_ticklabel_visible(False)
+    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
+    ax.text(
+        xtext.value,ytext.value,
+        '{}-{} $\mathrm{{\AA}}$'.format(*cp),
+        color='k',
+        fontsize=plt.rcParams['xtick.labelsize']
+    )
+plt.subplots_adjust(wspace=0.03, hspace=0.03)
+cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
+cbar.ax.xaxis.set_ticks_position('top')
+fig_timelags = manager_timelags.save_figure('timelags')
+fig_timelags.caption = r'Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. The colorbar range from -5000 s to +5000 s.'
+fig_timelags.figure_env_name = 'figure*'
+fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_timelags.fig_str = fig_str
+\end{pycode}
+\py[manager_timelags]|fig_timelags|
 
-\begin{figure*}
-    \plotone{figures/correlation_maps.pdf}
-    \caption{Same as \autoref{fig:timelag_maps} except here we show the maximum value of the cross-correlation as derived from the observations.}
-    \label{fig:correlation_maps}
-\end{figure*}
+\begin{pycode}[manager_timelags]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=3/5,
+    figure_width_context='columnwidth'
+))
+plot_params = {
+    'title': False, 
+    'annotate': False,
+    'vmin': 0,
+    'vmax': 1,
+    'cmap': 'magma',
+}
+cax = fig.add_axes([0.125, 0.89, 0.775, 0.02])
+for i,cp in enumerate(channel_pairs):
+    m = Map(file_format.format('correlation', *cp))
+    m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
+                 SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
+    ax = fig.add_subplot(3, 5, i+1, projection=m)
+    im = m.plot(axes=ax, **plot_params)
+    ax.grid(alpha=0)
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+    lon.set_ticks(number=3)
+    lat.set_ticks(number=3,) 
+    if i == 5:
+        lat.set_ticklabel(rotation='vertical',)
+        lat.set_axislabel(r'Helioprojective Latitude',)
+    else:
+        lat.set_ticklabel_visible(False)
+    if i == 11:
+        lon.set_axislabel(r'Helioprojective Longitude')
+    else:
+        lon.set_ticklabel_visible(False)
+    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
+    ax.text(
+        xtext.value,ytext.value,
+        '{}-{} $\mathrm{{\AA}}$'.format(*cp),
+        color='w',
+        fontsize=plt.rcParams['xtick.labelsize']
+    )
+plt.subplots_adjust(wspace=0.03, hspace=0.03)
+cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
+cbar.ax.xaxis.set_ticks_position('top')
+fig_correlations = manager_timelags.save_figure('correlations')
+fig_correlations.caption = r'Same as \autoref{fig:timelags} except here we show the maximum value of the cross-correlation as derived from the observations.'
+fig_correlations.figure_env_name = 'figure*'
+fig_correlations.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_correlations.fig_str = fig_str
+\end{pycode}
+\py[manager_timelags]|fig_correlations|
 
 \authorcomment2{Discussion of observed timelags and cross-correlation values}
 
