@@ -29,7 +29,7 @@ fig = plt.figure(figsize=texfigure.figsize(
     height_ratio=2/3,
     figure_width_context='columnwidth'
 ))
-plt.subplots_adjust(hspace=0.03,wspace=0.03)
+plt.subplots_adjust(hspace=0.0,wspace=0.03)
 for i,f in enumerate(fits_files):
     m = Map(os.path.join(manager_data.data_dir, 'observations', f))
     m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
@@ -39,20 +39,18 @@ for i,f in enumerate(fits_files):
     m.plot(axes=ax, title=False, annotate=False, norm=norm)
     ax.grid(alpha=0)
     lon,lat = ax.coords
-    lon.set_ticks(color='k',number=3)
-    lat.set_ticks(color='k',number=3)
-    if i < 3:
+    lon.set_ticks(color='k',number=4)
+    lat.set_ticks(color='k',number=4)
+    if i != 3:
         lon.set_ticklabel_visible(False)
-    if i%3 != 0:
         lat.set_ticklabel_visible(False)
     else:
         lat.set_ticklabel(rotation='vertical')
+        lon.set_axislabel('Helioprojective Longitude')
+        lat.set_axislabel('Helioprojective Latitude')
     xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
     ax.text(xtext.value, ytext.value, f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
             color='w', fontsize=plt.rcParams['xtick.labelsize'])
-    if i == 3:
-        lon.set_axislabel('Helioprojective Longitude [arcsec]')
-        lat.set_axislabel('Helioprojective Latitude [arcsec]')
 fig_intensity_maps = manager_data.save_figure('intensity-maps')
 fig_intensity_maps.caption = r'Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.'
 fig_intensity_maps.figure_env_name = 'figure*'
@@ -79,17 +77,74 @@ from formatting import heating_palette
 
 \authorcomment1{Describe EM results, what we did specifically to get them, show histograms of slopes as well as maps; maybe have some comparison with models here, i.e. lay histograms on top of each other}
 
-\begin{figure}
-    \plotone{figures/em_slope_map.pdf}
-    \caption{Map of emission measure slope as computed from the time-averaged observed intensities.}
-    \label{fig:em_slope_map}
-\end{figure}
-
-\begin{figure}
-    \plotone{figures/em_slope_histograms.pdf}
-    \caption{Histogram of observed emission measure slope with model emission measure slopes overlaid.}
-    \label{fig:em_slope_histogram}
-\end{figure}
+\begin{pycode}[manager_em]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=1/2,
+    figure_width_context='columnwidth'
+))
+plt.subplots_adjust(wspace=0.31)
+### Map ###
+slope_map = Map(os.path.join(manager_em.data_dir, 'observations', 'em_slope.fits'))
+slope_map = slope_map.submap(
+    SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=slope_map.coordinate_frame),
+    SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=slope_map.coordinate_frame))
+cax = fig.add_axes([0.125, 0.82, 0.335, 0.025])
+ax = fig.add_subplot(121, projection=slope_map)
+im = slope_map.plot(
+    axes=ax,
+    cmap='viridis',
+    vmin=2, vmax=5,
+    title=False, annotate=False
+)
+ax.grid(alpha=0)
+# HPC Axes
+lon,lat = ax.coords
+lon.set_ticks(number=4)
+lat.set_ticks(number=2)
+lat.set_ticklabel(rotation='vertical')
+lon.set_axislabel('Helioprojective Longitude',)
+lat.set_axislabel('Helioprojective Latitude',)
+# Colorbar
+cbar = fig.colorbar(im,cax=cax, orientation='horizontal',)
+cbar.ax.xaxis.set_ticks_position('top')
+cbar.set_ticks([2,3,4,5])
+### Histograms ###
+ax = fig.add_subplot(122,)
+bins = np.arange(1,6,0.05)
+colors = ['k'] + heating_palette()
+# Plot Model EM Slopes
+for i,h in enumerate(['observations', 'high_frequency', 'intermediate_frequency', 'low_frequency']):
+    d = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope.fits')).data.flatten()
+    h,b,_ = ax.hist(
+        d[~np.isnan(d)],
+        bins=bins,
+        histtype='step',
+        density=True,
+        color=colors[i],
+        label=h.split('_')[0].capitalize()
+    )
+# Ticks and Spines
+ax.set_xlim(1.5,5.5);
+ax.set_xticks([2,3,4,5])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.set_yticks(ax.get_yticks()[1:-1])
+ax.spines['left'].set_bounds(ax.get_yticks()[0],ax.get_yticks()[-1])
+ax.spines['bottom'].set_bounds(ax.get_xticks()[0],ax.get_xticks()[-1])
+# Labels and legends
+ax.set_xlabel(r'$a$')
+ax.set_ylabel(r'Number of Pixels (Normalized)')
+ax.legend(frameon=False,loc=1)
+### Save ###
+fig_em_slopes = manager_em.save_figure('em-slopes')
+fig_em_slopes.caption = r'Left: Map of emission measure slope as computed from the time-averaged observed intensities. Right: Histogram of observed emission measure slope with model emission measure slopes overlaid.'
+fig_em_slopes.figure_env_name = 'figure*'
+fig_em_slopes.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_em_slopes.fig_str = fig_str
+\end{pycode}
+\py[manager_em]|fig_em_slopes|
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
