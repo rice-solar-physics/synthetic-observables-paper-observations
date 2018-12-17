@@ -49,8 +49,12 @@ for i,f in enumerate(fits_files):
         lon.set_axislabel('Helioprojective Longitude')
         lat.set_axislabel('Helioprojective Latitude')
     xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
-    ax.text(xtext.value, ytext.value, f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
-            color='w', fontsize=plt.rcParams['xtick.labelsize'])
+    ax.text(
+        xtext.value, ytext.value,
+        f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
+        color='w',
+        fontsize=plt.rcParams['legend.fontsize']
+    )
 fig_intensity_maps = manager_data.save_figure('intensity-maps')
 fig_intensity_maps.caption = r'Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.'
 fig_intensity_maps.figure_env_name = 'figure*'
@@ -200,12 +204,12 @@ for i,cp in enumerate(channel_pairs):
         lon.set_axislabel(r'Helioprojective Longitude')
     else:
         lon.set_ticklabel_visible(False)
-    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
+    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -160*u.arcsec, frame=m.coordinate_frame))
     ax.text(
         xtext.value,ytext.value,
         '{}-{} $\mathrm{{\AA}}$'.format(*cp),
         color='k',
-        fontsize=plt.rcParams['xtick.labelsize']
+        fontsize=plt.rcParams['legend.fontsize']
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
@@ -258,7 +262,7 @@ for i,cp in enumerate(channel_pairs):
         xtext.value,ytext.value,
         '{}-{} $\mathrm{{\AA}}$'.format(*cp),
         color='w',
-        fontsize=plt.rcParams['xtick.labelsize']
+        fontsize=plt.rcParams['legend.fontsize']
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')

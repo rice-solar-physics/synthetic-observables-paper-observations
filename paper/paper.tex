@@ -72,6 +72,8 @@ import os
 import texfigure
 pytex.formatter = texfigure.repr_latex_formatter
 import numpy as np
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import matplotlib.colors
 from sunpy.map import Map
@@ -85,7 +87,7 @@ plt.rcParams['font.serif'] = 'Computer Modern'
 plt.rcParams['text.usetex'] = True
 plt.rcParams['axes.titlesize'] = 10
 plt.rcParams['axes.labelsize'] = 10
-plt.rcParams['legend.fontsize'] = 8
+plt.rcParams['legend.fontsize'] = 7
 plt.rcParams['xtick.labelsize'] = 8
 plt.rcParams['ytick.labelsize'] = 8
 plt.rcParams['xtick.major.pad'] = 3
