@@ -164,7 +164,6 @@ manager_timelags = texfigure.Manager(
     number=3,
 )
 file_format = os.path.join(manager_timelags.data_dir, 'observations', '{}_{}_{}.fits')
-correlation_threshold = 0.1
 \end{pycode}
 
 \begin{pycode}[manager_timelags]
@@ -204,7 +203,7 @@ for i,cp in enumerate(channel_pairs):
         lon.set_axislabel(r'Helioprojective Longitude')
     else:
         lon.set_ticklabel_visible(False)
-    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -160*u.arcsec, frame=m.coordinate_frame))
+    xtext,ytext = m.world_to_pixel(SkyCoord(-325*u.arcsec, -350*u.arcsec, frame=m.coordinate_frame))
     ax.text(
         xtext.value,ytext.value,
         '{}-{} $\mathrm{{\AA}}$'.format(*cp),

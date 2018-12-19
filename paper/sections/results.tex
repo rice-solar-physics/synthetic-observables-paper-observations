@@ -12,22 +12,137 @@ manager_ml = texfigure.Manager(
     number=4,
 )
 from formatting import heating_palette, heating_cmap
+from classify import prep_data, classify_ar
+X, Y, X_observation, bad_pixels = prep_data(manager_ml.data_dir, channel_pairs, heating, correlation_threshold=correlation_threshold)
+# Dummy metadata for creating maps
+meta = Map(os.path.join(manager_ml.data_dir, 'observations', 'timelag_171_131.fits')).meta
+# ML classification code here
+rf_options = {
+    'n_estimators': 100,
+    'max_features': 'sqrt',
+    'criterion': 'gini',
+    'max_depth': 25,
+    'min_samples_leaf': 1,
+    'bootstrap': True,
+    'oob_score': True,
+}
+frequency_maps = {}
+probability_maps = {}
+# EM slope only
+f_map, p_maps, _, _ = classify_ar(rf_options, X[:,-1:], Y, X_observation[:,-1:], bad_pixels,)
+frequency_maps['a'] = f_map
+probability_maps['a'] = p_maps
+# Timelags, cross-correlation only
+f_map, p_maps, _, _ = classify_ar(rf_options, X[:,:-1], Y, X_observation[:,:-1], bad_pixels)
+frequency_maps['b'] = f_map
+probability_maps['b'] = p_maps
+# EM slope, timelags, cross-correlation
+f_map, p_maps, _, _ = classify_ar(rf_options, X, Y, X_observation, bad_pixels)
+frequency_maps['c'] = f_map
+probability_maps['c'] = p_maps
 \end{pycode}
 
 \authorcomment1{Describe random forest technique; how is data prepared; what is the RF actually doing; Description should be very detailed}
 
+\begin{deluxetable}{cccccc}
+    \tablecaption{Three different parameter sets that we use to classify the heating frequency in the \AR{}.\label{tab:cases}}
+    \tablehead{\colhead{Name} & \colhead{Parameters} & \colhead{Test Error} & \colhead{High} & \colhead{Intermediate} & \colhead{Low}}
+    \startdata
+    A & $a$ & & & & \\
+    B & $a,\tau_{AB}$ & & & & \\
+    C & $a,\tau_{AB},\mathcal{C}_{AB}$ & & & & 
+    \enddata
+\end{deluxetable}
+
 \authorcomment1{Run classifier for EM, timelag+correlation, EM+timelag+correlation; compare results; show heating frequency maps, probability maps, and stack plots for all three cases}
 
-\begin{figure*}
-    \plotone{figures/probability_maps.pdf}
-    \caption{Foo bar}
-    \label{fig:probability_maps}
-\end{figure*}
+\begin{pycode}[manager_ml]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=0.95,
+    figure_width_context='columnwidth'
+))
+cax = fig.add_axes([0.125, 0.025, 0.775, 0.015])
+plt.subplots_adjust(wspace=0.03,hspace=0.03)
+for j,c in enumerate(('a','b','c')):
+    for i,h in enumerate(heating):
+        m = GenericMap(probability_maps[c][h], meta)
+        m = m.submap(SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=m.coordinate_frame),
+                     SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=m.coordinate_frame))
+        ax = fig.add_subplot(3, 3, 3*j+i+1, projection=m)
+        im = m.plot(axes=ax, annotate=False, title=False, vmin=0, vmax=1, cmap='viridis',)
+        ax.grid(alpha=0)
+        lon,lat = ax.coords
+        lon.set_ticks(number=4)
+        lat.set_ticks(number=2)
+        if i == 0 and j==2:
+            lon.set_axislabel('Helioprojective Longitude',)
+            lat.set_axislabel('Helioprojective Latitude', )
+            lat.set_ticklabel(rotation='vertical')
+        else:
+            lat.set_ticklabel_visible(False)
+            lon.set_ticklabel_visible(False)
+        if i == 0:
+            xtext,ytext = m.world_to_pixel(SkyCoord(-400*u.arcsec,-165*u.arcsec,frame=m.coordinate_frame))
+            ax.text(int(xtext.value), int(ytext.value), f'{c.capitalize()}', color='k', fontsize=plt.rcParams['legend.fontsize'])
+        if j == 0:
+            ax.set_title(h.split('_')[0].capitalize(),)
+cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
+cbar.ax.xaxis.set_ticks_position('bottom')
+### Save ###
+fig_probability_maps = manager_ml.save_figure('probability-maps')
+fig_probability_maps.caption = r'Probability maps for each case and each heating frequency'
+fig_probability_maps.figure_env_name = 'figure*'
+fig_probability_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_probability_maps.fig_str = fig_str
+\end{pycode}
+\py[manager_ml]|fig_probability_maps|
 
 \authorcomment1{Describe and interpret the results of the classification}
 
-\begin{figure}
-    \plotone{figures/frequency_map.pdf}
-    \caption{foo bar}
-    \label{fig:frequency_map}
-\end{figure}
+\begin{pycode}[manager_ml]
+fig = plt.figure(figsize=texfigure.figsize(
+    pytex,
+    scale=1 if is_onecolumn() else 2,
+    height_ratio=1/3,
+    figure_width_context='columnwidth'
+))
+cax = fig.add_axes([0.125, 0.875, 0.775, 0.04])
+plt.subplots_adjust(wspace=0.03)
+for i,c in enumerate(('a','b','c')):
+    m = GenericMap(frequency_maps[c],meta)
+    m = m.submap(SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=m.coordinate_frame),
+                 SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=m.coordinate_frame))
+    ax = fig.add_subplot(1, 3, i+1, projection=m)
+    im = m.plot(axes=ax, title=False,annotate=False, vmin=-0.5, vmax=2.5, cmap=heating_cmap())
+    ax.grid(alpha=0)
+    # Axes and ticks
+    lon, lat = ax.coords
+    if i == 0:
+        lon.set_axislabel('Helioprojective Longitude',)
+        lat.set_axislabel('Helioprojective Latitude',)
+        lat.set_ticklabel(rotation='vertical')
+    else:
+        lon.set_ticklabel_visible(False)
+        lat.set_ticklabel_visible(False)
+    lon.set_ticks(number=4)
+    lat.set_ticks(number=2)
+    xtext,ytext = m.world_to_pixel(SkyCoord(-400*u.arcsec,-165*u.arcsec,frame=m.coordinate_frame))
+    ax.text(int(xtext.value), int(ytext.value), f'{c.capitalize()}', color='k', fontsize=plt.rcParams['legend.fontsize'])
+# Colorbar
+cbar = fig.colorbar(im, cax=cax,orientation='horizontal')
+cbar.ax.xaxis.set_ticks_position('top')
+cbar.set_ticks([-0.25,1,2.25])
+cbar.ax.set_xticklabels([h.split('_')[0].capitalize() for h in heating],)
+cbar.ax.tick_params(axis='x', which='both', length=0)
+# Save
+fig_frequency_maps = manager_ml.save_figure('frequency-maps')
+fig_frequency_maps.caption = r'Heating frequency maps'
+fig_frequency_maps.figure_env_name = 'figure*'
+fig_frequency_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_frequency_maps.fig_str = fig_str
+\end{pycode}
+\py[manager_ml]|fig_frequency_maps|
+
+\authorcomment1{Table comparing three cases; list parameters used, test error, and percentage of pixels classified as each heating frequency}
