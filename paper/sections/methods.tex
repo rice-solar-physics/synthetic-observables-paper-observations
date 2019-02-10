@@ -12,7 +12,11 @@ manager_data = texfigure.Manager(
     number=1,
 )
 \end{pycode}
-\authorcomment1{Describe data collection and prep procedures; can give brief description of timelag and em procedures, mostly just pointing to Paper 1}
+
+% Describe data collection and prep procedures
+% Can give brief description of timelag and em procedures, mostly just pointing to Paper 1
+
+We analyze 12 hours of observations of \AR{} NOAA 1158 from the six EUV channels AIA beginning at and ending at . The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012}. The data are at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel. The data were obtained from the JSOC archive using the data retrieval tools in the SunPy package \citep{sunpy_community_sunpypython_2015}.
 
 \begin{pycode}[manager_data]
 fits_files = [
@@ -79,7 +83,9 @@ manager_em = texfigure.Manager(
 from formatting import heating_palette
 \end{pycode}
 
-\authorcomment1{Describe EM results, what we did specifically to get them, show histograms of slopes as well as maps; maybe have some comparison with models here, i.e. lay histograms on top of each other}
+% Describe EM results, what we did specifically to get them
+% show histograms of slopes as well as maps
+% maybe have some comparison with models here, i.e. lay histograms on top of each other}
 
 \begin{pycode}[manager_em]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -91,16 +97,19 @@ fig = plt.figure(figsize=texfigure.figsize(
 plt.subplots_adjust(wspace=0.31)
 ### Map ###
 slope_map = Map(os.path.join(manager_em.data_dir, 'observations', 'em_slope.fits'))
+rsquared_map = Map(os.path.join(manager_em.data_dir, 'observations', 'em_slope_rsquared.fits'))
+slope_map = Map(slope_map.data, slope_map.meta, mask=rsquared_map.data < rsquared_threshold)
 slope_map = slope_map.submap(
     SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=slope_map.coordinate_frame),
     SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=slope_map.coordinate_frame))
-cax = fig.add_axes([0.125, 0.82, 0.335, 0.025])
 ax = fig.add_subplot(121, projection=slope_map)
 im = slope_map.plot(
     axes=ax,
     cmap='viridis',
-    vmin=2, vmax=5,
-    title=False, annotate=False
+    vmin=1.5,
+    vmax=5.5,
+    title=False,
+    annotate=False
 )
 ax.grid(alpha=0)
 # HPC Axes
@@ -111,18 +120,22 @@ lat.set_ticklabel(rotation='vertical')
 lon.set_axislabel('Helioprojective Longitude',)
 lat.set_axislabel('Helioprojective Latitude',)
 # Colorbar
+pos = ax.get_position().get_points()
+cax = fig.add_axes([pos[0,0], pos[1,1]+0.01, pos[1,0]-pos[0,0], 0.025])
 cbar = fig.colorbar(im,cax=cax, orientation='horizontal',)
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.set_ticks([2,3,4,5])
 ### Histograms ###
 ax = fig.add_subplot(122,)
-bins = np.arange(1,6,0.05)
+bins = np.arange(0, 8, 0.05)
 colors = ['k'] + heating_palette()
 # Plot Model EM Slopes
 for i,h in enumerate(['observations'] + heating):
-    d = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope.fits')).data.flatten()
+    m = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope.fits'))
+    m_rsquared = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope_rsquared.fits'))
+    m = Map(m.data, m.meta, mask=m_rsquared.data < rsquared_threshold)
     h,b,_ = ax.hist(
-        d[~np.isnan(d)],
+        m.data[~m.mask],
         bins=bins,
         histtype='step',
         density=True,
@@ -130,11 +143,11 @@ for i,h in enumerate(['observations'] + heating):
         label=h.split('_')[0].capitalize()
     )
 # Ticks and Spines
-ax.set_xlim(1.5,5.5);
-ax.set_xticks([2,3,4,5])
+ax.set_xlim(1, 8);
+ax.xaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 7]))
+ax.set_yticks(ax.get_yticks()[1:-1])
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
-ax.set_yticks(ax.get_yticks()[1:-1])
 ax.spines['left'].set_bounds(ax.get_yticks()[0],ax.get_yticks()[-1])
 ax.spines['bottom'].set_bounds(ax.get_xticks()[0],ax.get_xticks()[-1])
 # Labels and legends
@@ -164,6 +177,7 @@ manager_timelags = texfigure.Manager(
     number=3,
 )
 file_format = os.path.join(manager_timelags.data_dir, 'observations', '{}_{}_{}.fits')
+from synthesizAR.visualize import bgry_004_idl_cmap
 \end{pycode}
 
 \begin{pycode}[manager_timelags]
@@ -176,11 +190,11 @@ fig = plt.figure(figsize=texfigure.figsize(
 plot_params = {
     'title': False, 
     'annotate': False,
-    'vmin': -(5e3*u.s).to(u.s).value,
-    'vmax': (5e3*u.s).to(u.s).value,
-    'cmap': 'RdYlBu_r',
+    'vmin': -(2*u.h).to(u.s).value,
+    'vmax': (2*u.h).to(u.s).value,
+    'cmap': bgry_004_idl_cmap,
 }
-cax = fig.add_axes([0.125, 0.89, 0.775, 0.02])
+axes = []
 for i,cp in enumerate(channel_pairs):
     m = Map(file_format.format('timelag', *cp))
     mc = Map(file_format.format('correlation', *cp))
@@ -188,6 +202,7 @@ for i,cp in enumerate(channel_pairs):
     m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
                  SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
     ax = fig.add_subplot(3, 5, i+1, projection=m)
+    axes.append(ax)
     im = m.plot(axes=ax, **plot_params)
     ax.grid(alpha=0)
     lon = ax.coords[0]
@@ -211,6 +226,12 @@ for i,cp in enumerate(channel_pairs):
         fontsize=plt.rcParams['legend.fontsize']
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
+cax = fig.add_axes([
+    axes[0].get_position().get_points()[0,0],
+    axes[4].get_position().get_points()[1,1] + 0.01,
+    axes[-1].get_position().get_points()[1,0] - axes[0].get_position().get_points()[0,0], 
+    0.02
+])
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
 fig_timelags = manager_timelags.save_figure('timelags')
@@ -235,12 +256,13 @@ plot_params = {
     'vmax': 1,
     'cmap': 'magma',
 }
-cax = fig.add_axes([0.125, 0.89, 0.775, 0.02])
+axes = []
 for i,cp in enumerate(channel_pairs):
     m = Map(file_format.format('correlation', *cp))
     m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
                  SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
     ax = fig.add_subplot(3, 5, i+1, projection=m)
+    axes.append(ax)
     im = m.plot(axes=ax, **plot_params)
     ax.grid(alpha=0)
     lon = ax.coords[0]
@@ -264,6 +286,12 @@ for i,cp in enumerate(channel_pairs):
         fontsize=plt.rcParams['legend.fontsize']
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
+cax = fig.add_axes([
+    axes[0].get_position().get_points()[0,0],
+    axes[4].get_position().get_points()[1,1] + 0.01,
+    axes[-1].get_position().get_points()[1,0] - axes[0].get_position().get_points()[0,0], 
+    0.02
+])
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
 fig_correlations = manager_timelags.save_figure('correlations')
