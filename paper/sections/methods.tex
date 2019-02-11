@@ -16,9 +16,12 @@ manager_data = texfigure.Manager(
 % Describe data collection and prep procedures
 % Can give brief description of timelag and em procedures, mostly just pointing to Paper 1
 
-We analyze 12 hours of observations of \AR{} NOAA 1158 from the six EUV channels AIA beginning at and ending at . The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012}. The data are at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel. The data were obtained from the JSOC archive using the data retrieval tools in the SunPy package \citep{sunpy_community_sunpypython_2015}.
+We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center (JSOC) archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the Fido data retrieval tool in SunPy \citep{sunpy_community_sunpypython_2015}. This amounts to a total of 21597 images across all six channels and the entire observing window.
+
+After downloading the data, we apply the \texttt{aiaprep} method, as implemented in SunPy, to each full-disk image in order to process the level-1 data into a level-1.5 data. Next, we align each image with the observation at 2011 February 12 15:33:45 UTC (the time of the original observation of NOAA 1158 by \citet{warren_systematic_2012}) by ``derotating'' each image using the Snodgrass empirical rotation rate \citep{snodgrass_magnetic_1983}. After aligning the images in every channel to a common time, we crop each full-disk image such that the bottom left corner of the image is $(-440\arcsec,-375\arcsec)$ and the top right corner is $(-140\arcsec,-75\arcsec)$, where the two coordinates are the longitude and latitude, respectively, in the helioprojective coordinate system \citep[see][]{thompson_coordinate_2006} defined by an observer at the location of the SDO satellite on 2011 February 12 15:33:45. \autoref{fig:intensity-maps} shows the level-1.5, derotated and cropped AIA observations of \AR{} NOAA 1158 at 2011 February 12 15:33:45 in all six EUV channels of interest.
 
 \begin{pycode}[manager_data]
+from matplotlib.ticker import MaxNLocator
 fits_files = [
     'aia_lev1.5_20110212T153238_94_cutout.fits',
     'aia_lev1.5_20110212T153245_131_cutout.fits',
@@ -30,17 +33,18 @@ fits_files = [
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=2/3,
+    height_ratio=2.25/3,
     figure_width_context='columnwidth'
 ))
-plt.subplots_adjust(hspace=0.0,wspace=0.03)
+plt.subplots_adjust(hspace=0.075,wspace=0.03)
 for i,f in enumerate(fits_files):
     m = Map(os.path.join(manager_data.data_dir, 'observations', f))
+    m = Map(m.data/m.meta['exptime'], m.meta)
     m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
                  SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
     ax = fig.add_subplot(2,3,i+1,projection=m)
     norm = ImageNormalize(vmin=0, vmax=m.data.max(), stretch=SqrtStretch())
-    m.plot(axes=ax, title=False, annotate=False, norm=norm)
+    im = m.plot(axes=ax, title=False, annotate=False, norm=norm)
     ax.grid(alpha=0)
     lon,lat = ax.coords
     lon.set_ticks(color='k',number=4)
@@ -59,8 +63,16 @@ for i,f in enumerate(fits_files):
         color='w',
         fontsize=plt.rcParams['legend.fontsize']
     )
+    pos = ax.get_position().get_points()
+    cax = fig.add_axes([pos[0,0], pos[1,1]+0.0075, pos[1,0]-pos[0,0], 0.02])
+    cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
+    cbar.locator = MaxNLocator(nbins=4, prune='lower')
+    cbar.ax.tick_params(labelsize=plt.rcParams['legend.fontsize'],)
+    cbar.update_ticks()
+    cbar.ax.xaxis.set_ticks_position('top')
+
 fig_intensity_maps = manager_data.save_figure('intensity-maps')
-fig_intensity_maps.caption = r'Maps of the observed intensity in all 6 EUV channels of AIA at a single point in time. The images of have been prepped, derotated, and cropped to \AR{} NOAA 1158.'
+fig_intensity_maps.caption = r'AIA observations of \AR{} NOAA 1158 as observed by AIA on 2011 February 12 15:32 UTC in the six EUV channels of interest. The data have been processed to level-1.5, aligned to the image at 2011 February 12 15:33:45 UTC, and cropped to the area surrounding NOAA 1158. The intensities are in units of DN pixel$^{-1}$ s$^{-1}$. In each image, the colorbar is on a square root scale and is normalized between zero and the maximum intensity. The color tables are the standard AIA color tables as implemented in SunPy.'
 fig_intensity_maps.figure_env_name = 'figure*'
 fig_intensity_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_intensity_maps.fig_str = fig_str
