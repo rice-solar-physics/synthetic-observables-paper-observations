@@ -68,7 +68,7 @@ tab = {
     'Low': [frequency_maps[c][frequency_maps[c] == 2].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
 }
 caption = r'Three different parameter sets that we use to classify the heating frequency in the \AR{}.\label{tab:cases}'
-formats = {'Test Error': '%.2f', 'High': '%.2f', 'Intermediate': '%.2f', 'Low': '%.2f'}
+formats = {'Test Error': '%.2f', 'High': '%.3f', 'Intermediate': '%.3f', 'Low': '%.3f'}
 with io.StringIO() as f:
     ascii.write(tab, format='aastex', caption=caption, output=f, formats=formats)
     table = f.getvalue()
