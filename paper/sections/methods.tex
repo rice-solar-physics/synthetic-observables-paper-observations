@@ -13,15 +13,11 @@ manager_data = texfigure.Manager(
 )
 \end{pycode}
 
-% Describe data collection and prep procedures
-% Can give brief description of timelag and em procedures, mostly just pointing to Paper 1
+We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012} and was also studied by \citet{viall_survey_2017}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center \citep[JSOC,][]{couvidat_observables_2016} archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the drms Python client \authorcomment1{Need Zenodo DOI}. This amounts to a total of 21597 images across all six channels and the entire observing window.
 
-We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center (JSOC) archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the Fido data retrieval tool in SunPy \citep{sunpy_community_sunpypython_2015}. This amounts to a total of 21597 images across all six channels and the entire observing window.
-
-After downloading the data, we apply the \texttt{aiaprep} method, as implemented in SunPy, to each full-disk image in order to process the level-1 data into a level-1.5 data. Next, we align each image with the observation at 2011 February 12 15:33:45 UTC (the time of the original observation of NOAA 1158 by \citet{warren_systematic_2012}) by ``derotating'' each image using the Snodgrass empirical rotation rate \citep{snodgrass_magnetic_1983}. After aligning the images in every channel to a common time, we crop each full-disk image such that the bottom left corner of the image is $(-440\arcsec,-375\arcsec)$ and the top right corner is $(-140\arcsec,-75\arcsec)$, where the two coordinates are the longitude and latitude, respectively, in the helioprojective coordinate system \citep[see][]{thompson_coordinate_2006} defined by an observer at the location of the SDO satellite on 2011 February 12 15:33:45. \autoref{fig:intensity-maps} shows the level-1.5, derotated and cropped AIA observations of \AR{} NOAA 1158 at 2011 February 12 15:33:45 in all six EUV channels of interest.
+After downloading the data, we apply the \texttt{aiaprep} method, as implemented in SunPy \citep{sunpy_community_sunpypython_2015}, to each full-disk image in order to process the level-1 data into a level-1.5 data. Next, we align each image with the observation at 2011 February 12 15:33:45 UTC (the time of the original observation of NOAA 1158 by \citet{warren_systematic_2012}) by ``derotating'' each image using the Snodgrass empirical rotation rate \citep{snodgrass_magnetic_1983}. After aligning the images in every channel to a common time, we crop each full-disk image such that the bottom left corner of the image is $(-440\arcsec,-375\arcsec)$ and the top right corner is $(-140\arcsec,-75\arcsec)$, where the two coordinates are the longitude and latitude, respectively, in the helioprojective coordinate system \citep[see][]{thompson_coordinate_2006} defined by an observer at the location of the SDO spacecraft on 2011 February 12 15:33:45. \autoref{fig:intensity-maps} shows the level-1.5, derotated and cropped AIA observations of \AR{} NOAA 1158 at 2011 February 12 15:33:45 in all six EUV channels of interest.
 
 \begin{pycode}[manager_data]
-from matplotlib.ticker import MaxNLocator
 fits_files = [
     'aia_lev1.5_20110212T153238_94_cutout.fits',
     'aia_lev1.5_20110212T153245_131_cutout.fits',
@@ -36,7 +32,7 @@ fig = plt.figure(figsize=texfigure.figsize(
     height_ratio=2.25/3,
     figure_width_context='columnwidth'
 ))
-plt.subplots_adjust(hspace=0.075,wspace=0.03)
+plt.subplots_adjust(hspace=0.05,wspace=0.03)
 for i,f in enumerate(fits_files):
     m = Map(os.path.join(manager_data.data_dir, 'observations', f))
     m = Map(m.data/m.meta['exptime'], m.meta)
@@ -64,15 +60,16 @@ for i,f in enumerate(fits_files):
         fontsize=plt.rcParams['legend.fontsize']
     )
     pos = ax.get_position().get_points()
-    cax = fig.add_axes([pos[0,0], pos[1,1]+0.0075, pos[1,0]-pos[0,0], 0.02])
+    cax = fig.add_axes([pos[0,0], pos[1,1]+0.0075, pos[1,0]-pos[0,0], 0.015])
     cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
     cbar.locator = MaxNLocator(nbins=4, prune='lower')
-    cbar.ax.tick_params(labelsize=plt.rcParams['legend.fontsize'],)
+    cbar.ax.tick_params(labelsize=plt.rcParams['legend.fontsize'], width=0.5)
     cbar.update_ticks()
     cbar.ax.xaxis.set_ticks_position('top')
+    cbar.outline.set_linewidth(0.5)
 
 fig_intensity_maps = manager_data.save_figure('intensity-maps')
-fig_intensity_maps.caption = r'AIA observations of \AR{} NOAA 1158 as observed by AIA on 2011 February 12 15:32 UTC in the six EUV channels of interest. The data have been processed to level-1.5, aligned to the image at 2011 February 12 15:33:45 UTC, and cropped to the area surrounding NOAA 1158. The intensities are in units of DN pixel$^{-1}$ s$^{-1}$. In each image, the colorbar is on a square root scale and is normalized between zero and the maximum intensity. The color tables are the standard AIA color tables as implemented in SunPy.'
+fig_intensity_maps.caption = r'Active region NOAA 1158 as observed by AIA on 2011 February 12 15:32 UTC in the six EUV channels of interest. The data have been processed to level-1.5, aligned to the image at 2011 February 12 15:33:45 UTC, and cropped to the area surrounding NOAA 1158. The intensities are in units of DN pixel$^{-1}$ s$^{-1}$. In each image, the colorbar is on a square root scale and is normalized between zero and the maximum intensity. The color tables are the standard AIA color tables as implemented in SunPy.'
 fig_intensity_maps.figure_env_name = 'figure*'
 fig_intensity_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_intensity_maps.fig_str = fig_str
@@ -95,9 +92,9 @@ manager_em = texfigure.Manager(
 from formatting import heating_palette
 \end{pycode}
 
-% Describe EM results, what we did specifically to get them
-% show histograms of slopes as well as maps
-% maybe have some comparison with models here, i.e. lay histograms on top of each other}
+After prepping, aligning, and cropping all 12 hours of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute two diagnostics of the heating: the emission measure slope and the timelag. First, we compute the emission measure distribution, \dem, in each pixel of the \AR{} from the time-averaged intensities from all six channels using the regularized inversion method of \citet{hannah_differential_2012}. As in \citetalias{barnes_understanding_2019}, we use temperature bins of width $\Delta\log T=0.1$ with the left and right edges at $10^{5.5}$ K and $10^{7.2}$ K, respectively. The uncertainties on the intensities are estimated using \texttt{aia\_bp\_estimate\_error.pro} procedure provided by the AIA instrument team in the SolarSoftware package \citep[SSW,][]{freeland_data_1998}. 
+
+As we noted in the introduction to \citetalias{barnes_understanding_2019}, the emission measure distribution is well-described by the power-law relationship $\textup{EM}(T)\sim T^a$, for $a>0$, over the temperature range $10^{5.5}\lesssim T\lesssim10^{6.5}$ K \citep{jordan_structure_1975,jordan_structure_1976} where $a$ is the emission measure slope. $a$ parameterizes the width of the emission measure distribution and as such is a commonly used diagnostic for the heating frequency \citep[e.g.][]{tripathi_emission_2011,winebarger_using_2011,warren_constraints_2011,mulu-moore_can_2011,bradshaw_diagnosing_2012,schmelz_cold_2012,reep_diagnosing_2013,cargill_active_2014,del_zanna_evolution_2015}. 
 
 \begin{pycode}[manager_em]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -148,7 +145,7 @@ for i,h in enumerate(['observations'] + heating):
     m = Map(m.data, m.meta, mask=m_rsquared.data < rsquared_threshold)
     h,b,_ = ax.hist(
         m.data[~m.mask],
-        bins=bins,
+        bins='fd',#bins,
         histtype='step',
         density=True,
         color=colors[i],
@@ -157,7 +154,7 @@ for i,h in enumerate(['observations'] + heating):
 # Ticks and Spines
 ax.set_xlim(1, 8);
 ax.xaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 7]))
-ax.set_yticks(ax.get_yticks()[1:-1])
+ax.yaxis.set_major_locator(MaxNLocator(nbins=7, prune='both'))
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 ax.spines['left'].set_bounds(ax.get_yticks()[0],ax.get_yticks()[-1])
@@ -168,12 +165,16 @@ ax.set_ylabel(r'Number of Pixels (Normalized)')
 ax.legend(frameon=False,loc=1)
 ### Save ###
 fig_em_slopes = manager_em.save_figure('em-slopes')
-fig_em_slopes.caption = r'Left: Map of emission measure slope as computed from the time-averaged observed intensities. Right: Histogram of observed emission measure slope with model emission measure slopes overlaid.'
+fig_em_slopes.caption = r'\textit{Left:} Map of emission measure slope, $a$, in each pixel of \AR{} NOAA 1158. The \dem{} is computed from the observed AIA intensities in the six EUV channels time-averaged over the 12-hour observing window using the method of \citet{hannah_differential_2012}. The \dem{} in each pixel is then fit to $T^a$ over the temperature interval $8\times10^5\,\textup{K}\le T < T_{peak}$. Any pixels with $r^2<0.75$ are masked and colored white. \textit{Right:} Distribution of emission measure slopes computed from the observed intensities (black) and the predicted intensities from \citetalias{barnes_understanding_2019} (blue, orange, green). In each case, the bins are determined using the Freedman Diaconis estimator \citep{freedman_histogram_1981} as implemented in the Numpy package for array computation in Python \citep{oliphant_guide_2006} and each histogram is normalized such that the area under the histogram is equal to 1.'
 fig_em_slopes.figure_env_name = 'figure*'
 fig_em_slopes.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_em_slopes.fig_str = fig_str
 \end{pycode}
 \py[manager_em]|fig_em_slopes|
+
+The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$, where $T_{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white.
+
+The right panel of \autoref{fig:em-slopes} shows the distribution of emission measure slopes for every pixel in the \AR{} where $r^2\ge\py|rsquared_threshold|$. As noted in the legend, the black histogram denotes the slopes computed from the real AIA observations while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively. Note that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
@@ -192,6 +193,12 @@ file_format = os.path.join(manager_timelags.data_dir, 'observations', '{}_{}_{}.
 from synthesizAR.visualize import bgry_004_idl_cmap
 \end{pycode}
 
+% Discussion of observed timelags and cross-correlation values
+% Possibly put histograms of observations versus models here too
+% Emphasize the point that no single heating model is consistent with the observations. Need multiple heating frequencies; this will lead into random forest stuff
+
+Next, we apply the timelag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution. As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the timelag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}. We consider all possible offsets over the interval $\pm6$ hours. Following the convention of \citet{viall_evidence_2012}, the channel pairs are ordered such that the ``hot'' channel is listed first, meaning that \textit{a positive timelag indicates cooling plasma}. The details of the cross-correlation and timelag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
+
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
@@ -202,8 +209,8 @@ fig = plt.figure(figsize=texfigure.figsize(
 plot_params = {
     'title': False, 
     'annotate': False,
-    'vmin': -(2*u.h).to(u.s).value,
-    'vmax': (2*u.h).to(u.s).value,
+    'vmin': -(5e3*u.s).to(u.s).value,
+    'vmax': (5e3*u.s).to(u.s).value,
     'cmap': bgry_004_idl_cmap,
 }
 axes = []
@@ -230,12 +237,14 @@ for i,cp in enumerate(channel_pairs):
         lon.set_axislabel(r'Helioprojective Longitude')
     else:
         lon.set_ticklabel_visible(False)
-    xtext,ytext = m.world_to_pixel(SkyCoord(-325*u.arcsec, -350*u.arcsec, frame=m.coordinate_frame))
+    xtext,ytext = m.world_to_pixel(SkyCoord(-190*u.arcsec, -360*u.arcsec, frame=m.coordinate_frame))
     ax.text(
         xtext.value,ytext.value,
         '{}-{} $\mathrm{{\AA}}$'.format(*cp),
         color='k',
-        fontsize=plt.rcParams['legend.fontsize']
+        fontsize=plt.rcParams['legend.fontsize'],
+        horizontalalignment='right',
+        verticalalignment='bottom',
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
 cax = fig.add_axes([
@@ -247,12 +256,16 @@ cax = fig.add_axes([
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
 fig_timelags = manager_timelags.save_figure('timelags')
-fig_timelags.caption = r'Timelag maps as calculated from intensity data from observations of \AR{} NOAA 1158 by SDO/AIA. Timelag maps are shown for every possible channel pair as indicated in the upper left corner of each map. The colorbar range from -5000 s to +5000 s.'
+fig_timelags.caption = r'Timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. The value of each pixel indicates the temporal offset, in seconds, which maximizes the cross-correlation \citepalias[see appendix of][]{barnes_understanding_2019}. The range of the colorbar is $\pm5000$ s. If $\max\mathcal{C}_{AB}<0.1$, the pixel is masked and colored white. Each map has been cropped to emphasize the core of the \AR{} such that the bottom left corner and top right corner of each image corresponds to $(-440\arcsec,-380\arcsec)$ and $(-185\arcsec,-125\arcsec)$, respectively.'
 fig_timelags.figure_env_name = 'figure*'
 fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_timelags.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_timelags|
+
+\autoref{fig:timelags} shows the timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative timelags while reds, oranges, and yellows correspond to positive timelags. Olive green denotes zero timelag. The range of the colorbar is $\pm5000$ s. If the maximum correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white. Note that \citet{viall_survey_2017} carried out the timelag analysis on this same \AR{}, NOAA 1158. In this paper, we repeat this same analysis to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019} so that we can make meaningful comparisons between our observed and predicted diagnostics.
+
+% Should we have more discussion on timelags here? This is really already covered in VK17...
 
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -290,12 +303,14 @@ for i,cp in enumerate(channel_pairs):
         lon.set_axislabel(r'Helioprojective Longitude')
     else:
         lon.set_ticklabel_visible(False)
-    xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
+    xtext,ytext = m.world_to_pixel(SkyCoord(-430*u.arcsec, -135*u.arcsec, frame=m.coordinate_frame))
     ax.text(
         xtext.value,ytext.value,
         '{}-{} $\mathrm{{\AA}}$'.format(*cp),
         color='w',
-        fontsize=plt.rcParams['legend.fontsize']
+        fontsize=plt.rcParams['legend.fontsize'],
+        horizontalalignment='left',
+        verticalalignment='top',
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
 cax = fig.add_axes([
@@ -307,15 +322,11 @@ cax = fig.add_axes([
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
 fig_correlations = manager_timelags.save_figure('correlations')
-fig_correlations.caption = r'Same as \autoref{fig:timelags} except here we show the maximum value of the cross-correlation as derived from the observations.'
+fig_correlations.caption = r'Same as \autoref{fig:timelags} except here we show the maximum value of the cross-correlation, $\max\mathcal{C}_{AB}$, for each channel pair.'
 fig_correlations.figure_env_name = 'figure*'
 fig_correlations.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_correlations.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_correlations|
 
-\authorcomment2{Discussion of observed timelags and cross-correlation values}
-
-\authorcomment2{Possibly put histograms of observations versus models here too}
-
-\authorcomment1{Emphasize the point that no single heating model is consistent with the observations. Need multiple heating frequencies; this will lead into random forest stuff}
+\autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this case, we do not mask pixels with $\max\mathcal{C}_{AB}<0.1$. Though the value of the cross-correlation can range from -1 (perfectly anti-correlated) to 1 (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel in the pair are in phase. 
