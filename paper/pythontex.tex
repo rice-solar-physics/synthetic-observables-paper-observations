@@ -42,19 +42,22 @@ import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import matplotlib.colors
-from matplotlib.ticker import FixedLocator
+from matplotlib.ticker import FixedLocator, MaxNLocator
 from sunpy.map import Map, GenericMap
 import astropy.units as u
 from astropy.table import Table
 from astropy.io import ascii
 from astropy.coordinates import SkyCoord
-from astropy.visualization import ImageNormalize,AsinhStretch,SqrtStretch
+from astropy.visualization import ImageNormalize, AsinhStretch, SqrtStretch
 import synthesizAR
 
 # Set some plot styling here
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = 'Computer Modern'
 plt.rcParams['text.usetex'] = True
+plt.rcParams['text.latex.preamble'] = [
+    r'\newcommand\arcsec{\mbox{$^{\prime\prime}$}}',
+]
 plt.rcParams['axes.titlesize'] = 10
 plt.rcParams['axes.labelsize'] = 10
 plt.rcParams['legend.fontsize'] = 7
@@ -71,11 +74,29 @@ plt.rcParams['savefig.format'] = 'pdf'
 plt.rcParams['savefig.bbox'] = 'tight'
 
 # Some useful quantities
-channels = [94,131,171,193,211,335]
-heating = ['high_frequency', 'intermediate_frequency','low_frequency']
-channel_pairs = [(94,335), (94,171), (94,193),(94,131),(94,211),(335,131),(335,193),
-                    (335,211),(335,171),(211,131),(211,171),(211,193),(193,171),(193,131),
-                    (171,131),]
+channels = [94, 131, 171, 193, 211, 335]
+heating = [
+    'high_frequency',
+    'intermediate_frequency',
+    'low_frequency'
+]
+channel_pairs = [
+    (94,335),
+    (94,171),
+    (94,193),
+    (94,131),
+    (94,211),
+    (335,131),
+    (335,193),
+    (335,211),
+    (335,171),
+    (211,131),
+    (211,171),
+    (211,193),
+    (193,171),
+    (193,131),
+    (171,131),
+]
 correlation_threshold = 0.1
 rsquared_threshold = 0.75
 
