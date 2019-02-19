@@ -196,6 +196,7 @@ from synthesizAR.visualize import bgry_004_idl_cmap
 % Discussion of observed timelags and cross-correlation values
 % Possibly put histograms of observations versus models here too
 % Emphasize the point that no single heating model is consistent with the observations. Need multiple heating frequencies; this will lead into random forest stuff
+% Should we have more discussion on timelags here? This is really already covered in VK17...
 
 Next, we apply the timelag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution. As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the timelag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}. We consider all possible offsets over the interval $\pm6$ hours. Following the convention of \citet{viall_evidence_2012}, the channel pairs are ordered such that the ``hot'' channel is listed first, meaning that \textit{a positive timelag indicates cooling plasma}. The details of the cross-correlation and timelag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
 
@@ -263,9 +264,7 @@ fig_timelags.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_timelags|
 
-\autoref{fig:timelags} shows the timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative timelags while reds, oranges, and yellows correspond to positive timelags. Olive green denotes zero timelag. The range of the colorbar is $\pm5000$ s. If the maximum correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white. Note that \citet{viall_survey_2017} carried out the timelag analysis on this same \AR{}, NOAA 1158. In this paper, we repeat this same analysis to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019} so that we can make meaningful comparisons between our observed and predicted diagnostics.
-
-% Should we have more discussion on timelags here? This is really already covered in VK17...
+\autoref{fig:timelags} shows the timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative timelags while reds, oranges, and yellows correspond to positive timelags. Olive green denotes zero timelag. The range of the colorbar is $\pm5000$ s. If the maximum correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white.
 
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -330,3 +329,5 @@ fig_correlations.fig_str = fig_str
 \py[manager_timelags]|fig_correlations|
 
 \autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this case, we do not mask pixels with $\max\mathcal{C}_{AB}<0.1$. Though the value of the cross-correlation can range from -1 (perfectly anti-correlated) to 1 (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel in the pair are in phase. 
+
+Note that \citet{viall_survey_2017} carried out the timelag analysis on this same \AR{}, NOAA 1158, as part of a survey of the catalogue of \AR{}s compiled by \citet{warren_systematic_2012}. We repeat this same analysis here to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019} in order to make meaningful comparisons between our observed and predicted diagnostics.
