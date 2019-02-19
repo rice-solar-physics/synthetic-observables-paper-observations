@@ -20,11 +20,12 @@ X, Y, X_observation, bad_pixels = prep_data(
     correlation_threshold=correlation_threshold,
     rsquared_threshold=rsquared_threshold,
     scale_slope=False,
-    scale_timelag=True,
+    scale_timelag=False,
     scale_correlation=False,
 )
 # Dummy metadata for creating maps
 meta = Map(os.path.join(manager_ml.data_dir, 'observations', 'timelag_171_131.fits')).meta
+
 # ML classification code here
 rf_options = {
     'n_estimators': 100,
@@ -32,43 +33,72 @@ rf_options = {
     'criterion': 'gini',
     'max_depth': 25,
     'min_samples_leaf': 1,
+    'min_samples_split': 2,
     'bootstrap': True,
     'oob_score': True,
+    'max_leaf_nodes': None,
+    'min_impurity_decrease': 0,
+    'n_jobs': -1,
 }
 frequency_maps = {}
 probability_maps = {}
 test_error = {}
+
 # EM slope only
 f_map, p_maps, _, err = classify_ar(rf_options, X[:,-1:], Y, X_observation[:,-1:], bad_pixels,)
 frequency_maps['a'] = f_map
 probability_maps['a'] = p_maps
 test_error['a'] = err
+
 # Timelags, cross-correlation only
 f_map, p_maps, _, err = classify_ar(rf_options, X[:,:-1], Y, X_observation[:,:-1], bad_pixels)
 frequency_maps['b'] = f_map
 probability_maps['b'] = p_maps
 test_error['b'] = err
+
 # EM slope, timelags, cross-correlation
 f_map, p_maps, _, err = classify_ar(rf_options, X, Y, X_observation, bad_pixels)
 frequency_maps['c'] = f_map
 probability_maps['c'] = p_maps
 test_error['c'] = err
+
+# EM slope, timelags, cross-correlation w/o 211-193 timelag
+f_map, p_maps, _, err = classify_ar(
+    rf_options,
+    X[:,[i for i in range(X.shape[1]) if i != 11]], 
+    Y,
+    X_observation[:,[i for i in range(X_observation.shape[1]) if i != 11]],
+    bad_pixels
+)
+frequency_maps['d'] = f_map
+probability_maps['d'] = p_maps
+test_error['d'] = err
 \end{pycode}
 
-\authorcomment1{Describe random forest technique; how is data prepared; what is the RF actually doing; Description should be very detailed}
+% Describe random forest technique
+% how is data prepared
+% what is the RF actually doing
+% weaknesses and assumptions
+
+To systematically assess whether the observed emission measure slopes and timelags of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier on our predicted emission measure slopes and timelags from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each 
 
 \begin{pycode}[manager_ml]
-cases = ['a','b','c']
+cases = ['a','b','c','d']
 tab = {
     'Name': [c.upper() for c in cases],
-    'Parameters': [r'$a$', r'$\tau_{AB},\mathcal{C}_{AB}$', r'$a,\tau_{AB},\mathcal{C}_{AB}$'],
-    'Test Error': [test_error[c] for c in cases],
+    'Parameters': [r'$a$', r'$\tau_{AB},\mathcal{C}_{AB}$', r'$a,\tau_{AB},\mathcal{C}_{AB}$', r'C w/o $\tau_{211,193}$'],
+    'Error': [test_error[c] for c in cases],
     'High': [frequency_maps[c][frequency_maps[c] == 0].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
     'Intermediate': [frequency_maps[c][frequency_maps[c] == 1].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
     'Low': [frequency_maps[c][frequency_maps[c] == 2].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
 }
-caption = r'Three different parameter sets that we use to classify the heating frequency in the \AR{}.\label{tab:cases}'
-formats = {'Test Error': '%.2f', 'High': '%.3f', 'Intermediate': '%.3f', 'Low': '%.3f'}
+caption = r'Misclassification error as evaluated on the test data set and percentage of pixels labeled as each class for the three different combinations of diagnostics.\label{tab:cases}'
+formats = {
+    'Error': '%.2f',
+    'High': '%.3f',
+    'Intermediate': '%.3f',
+    'Low': '%.3f'
+}
 with io.StringIO() as f:
     ascii.write(tab, format='aastex', caption=caption, output=f, formats=formats)
     table = f.getvalue()
@@ -81,23 +111,23 @@ with io.StringIO() as f:
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=0.96,
+    height_ratio=4/3*0.95,
     figure_width_context='columnwidth'
 ))
 axes = []
-for j,c in enumerate(('a','b','c')):
+for j,c in enumerate(('a','b','c','d')):
     for i,h in enumerate(heating):
         m = GenericMap(probability_maps[c][h], meta)
         m = m.submap(SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=m.coordinate_frame),
                      SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=m.coordinate_frame))
-        ax = fig.add_subplot(3, 3, 3*j+i+1, projection=m)
+        ax = fig.add_subplot(4, 3, 3*j+i+1, projection=m)
         axes.append(ax)
         im = m.plot(axes=ax, annotate=False, title=False, vmin=0, vmax=1, cmap='viridis',)
         ax.grid(alpha=0)
         lon,lat = ax.coords
         lon.set_ticks(number=4)
         lat.set_ticks(number=2)
-        if i == 0 and j==2:
+        if i == 0 and j==3:
             lon.set_axislabel('Helioprojective Longitude',)
             lat.set_axislabel('Helioprojective Latitude', )
             lat.set_ticklabel(rotation='vertical')
@@ -132,27 +162,25 @@ fig_probability_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_ml]|fig_probability_maps|
 
-\authorcomment1{Describe and interpret the results of the classification}
-
 \begin{pycode}[manager_ml]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=1/3,
+    height_ratio=0.95,
     figure_width_context='columnwidth'
 ))
 axes = []
-for i,c in enumerate(('a','b','c')):
+for i,c in enumerate(('a','b','c','d')):
     m = GenericMap(frequency_maps[c],meta)
     m = m.submap(SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=m.coordinate_frame),
                  SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=m.coordinate_frame))
-    ax = fig.add_subplot(1, 3, i+1, projection=m)
+    ax = fig.add_subplot(2, 2, i+1, projection=m)
     axes.append(ax)
     im = m.plot(axes=ax, title=False,annotate=False, vmin=-0.5, vmax=2.5, cmap=heating_cmap())
     ax.grid(alpha=0)
     # Axes and ticks
     lon, lat = ax.coords
-    if i == 0:
+    if i == 2:
         lon.set_axislabel('Helioprojective Longitude',)
         lat.set_axislabel('Helioprojective Latitude',)
         lat.set_ticklabel(rotation='vertical')
@@ -163,13 +191,13 @@ for i,c in enumerate(('a','b','c')):
     lat.set_ticks(number=2)
     xtext,ytext = m.world_to_pixel(SkyCoord(-400*u.arcsec,-165*u.arcsec,frame=m.coordinate_frame))
     ax.text(int(xtext.value), int(ytext.value), f'{c.capitalize()}', color='k', fontsize=plt.rcParams['legend.fontsize'])
-plt.subplots_adjust(wspace=0.03)
+plt.subplots_adjust(wspace=0.03,hspace=0.03)
 # Colorbar
 cax = fig.add_axes([
     axes[0].get_position().get_points()[0,0],
-    axes[0].get_position().get_points()[1,1] + 0.02,
+    axes[0].get_position().get_points()[1,1] + 0.01,
     axes[-1].get_position().get_points()[1,0] - axes[0].get_position().get_points()[0,0],
-    0.045
+    0.02
 ])
 cbar = fig.colorbar(im, cax=cax,orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
@@ -185,4 +213,5 @@ fig_frequency_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_ml]|fig_frequency_maps|
 
-\authorcomment1{Table comparing three cases; list parameters used, test error, and percentage of pixels classified as each heating frequency}
+% Describe the results of the classification
+
