@@ -57,19 +57,19 @@ probability_maps['b'] = p_maps
 test_error['b'] = err
 
 # EM slope, timelags, cross-correlation
-f_map, p_maps, _, err = classify_ar(rf_options, X, Y, X_observation, bad_pixels)
+f_map, p_maps, clf, err = classify_ar(rf_options, X, Y, X_observation, bad_pixels)
 frequency_maps['c'] = f_map
 probability_maps['c'] = p_maps
 test_error['c'] = err
 
-# EM slope, timelags, cross-correlation w/o 211-193 timelag
-f_map, p_maps, _, err = classify_ar(
-    rf_options,
-    X[:,[i for i in range(X.shape[1]) if i != 11]], 
-    Y,
-    X_observation[:,[i for i in range(X_observation.shape[1]) if i != 11]],
-    bad_pixels
-)
+# Calculate feature importances
+importances = clf.feature_importances_
+i_important = np.argsort(importances)[::-1]
+std = np.std([t.feature_importances_ for t in clf.estimators_], axis=0)
+
+# Top 10 features
+f_map, p_maps, _, err = classify_ar(rf_options, X[:, i_important[:10]], Y,
+                                    X_observation[:, i_important[:10]], bad_pixels)
 frequency_maps['d'] = f_map
 probability_maps['d'] = p_maps
 test_error['d'] = err
@@ -80,13 +80,15 @@ test_error['d'] = err
 % what is the RF actually doing
 % weaknesses and assumptions
 
-To systematically assess whether the observed emission measure slopes and timelags of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier on our predicted emission measure slopes and timelags from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each 
+To systematically assess whether the observed emission measure slopes and timelags of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier on our predicted emission measure slopes and timelags from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each
+
+\subsection{Different Feature Combinations}
 
 \begin{pycode}[manager_ml]
 cases = ['a','b','c','d']
 tab = {
-    'Name': [c.upper() for c in cases],
-    'Parameters': [r'$a$', r'$\tau_{AB},\mathcal{C}_{AB}$', r'$a,\tau_{AB},\mathcal{C}_{AB}$', r'C w/o $\tau_{211,193}$'],
+    'Case': [c.upper() for c in cases],
+    'Parameters': [r'$a$', r'$\tau_{AB},\mathcal{C}_{AB}$', r'$a,\tau_{AB},\mathcal{C}_{AB}$', r'Top 10 features from \autoref{tab:importance}'],
     'Error': [test_error[c] for c in cases],
     'High': [frequency_maps[c][frequency_maps[c] == 0].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
     'Intermediate': [frequency_maps[c][frequency_maps[c] == 1].size/frequency_maps[c][~np.isnan(frequency_maps[c])].size for c in cases],
@@ -105,13 +107,15 @@ with io.StringIO() as f:
 \end{pycode}
 \py[manager_ml]|table|
 
-\authorcomment1{Run classifier for EM, timelag+correlation, EM+timelag+correlation; compare results; show heating frequency maps, probability maps, and stack plots for all three cases}
+%Run classifier for EM, timelag+correlation, EM+timelag+correlation;
+% compare results
+% show heating frequency maps, probability maps for all three cases
 
 \begin{pycode}[manager_ml]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=4/3*0.95,
+    height_ratio=4/3*0.965,
     figure_width_context='columnwidth'
 ))
 axes = []
@@ -166,7 +170,7 @@ fig_probability_maps.fig_str = fig_str
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=0.95,
+    height_ratio=0.965,
     figure_width_context='columnwidth'
 ))
 axes = []
@@ -213,5 +217,24 @@ fig_frequency_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_ml]|fig_frequency_maps|
 
-% Describe the results of the classification
+\subsection{Feature Importance}\label{sec:feature-importance}
 
+% Talk about feature importance, give expression using the Gini importance, Gini impurity
+% Discuss results from fourth case
+% what does this say about the importance of these variables?
+
+\begin{pycode}[manager_ml]
+all_labels = np.array([r'$\tau_{{{},{}}}$'.format(*cp) for cp in channel_pairs] +
+                    [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + [r'$a$'])
+tab = {
+    'Feature': all_labels[i_important[:10]],
+    'Importance': importances[i_important[:10]],
+    r'$\sigma$': std[i_important[:10]],
+}
+caption = r'Ten most important features as determined by the random forest classifier in case C. $\sigma$ is the standard deviation of the feature importance of all trees in the random forest. \label{tab:importance}'
+formats = { 'Importance': '%.4f', r'$\sigma$': '%.4f' }
+with io.StringIO() as f:
+    ascii.write(tab, format='aastex', caption=caption, output=f, formats=formats)
+    table = f.getvalue()
+\end{pycode}
+\py[manager_ml]|table|
