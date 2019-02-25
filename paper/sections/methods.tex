@@ -328,6 +328,6 @@ fig_correlations.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_correlations|
 
-\autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this case, we do not mask pixels with $\max\mathcal{C}_{AB}<0.1$. Though the value of the cross-correlation can range from -1 (perfectly anti-correlated) to 1 (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel in the pair are in phase. 
+\autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this case, we do not mask pixels with $\max\mathcal{C}_{AB}<\py|correlation_threshold|$. Though the value of the cross-correlation can range from -1 (perfectly anti-correlated) to 1 (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel in the pair are in phase. 
 
 Note that \citet{viall_survey_2017} carried out the timelag analysis on this same \AR{}, NOAA 1158, as part of a survey of the catalogue of \AR{}s compiled by \citet{warren_systematic_2012}. We repeat this same analysis here to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019} in order to make meaningful comparisons between our observed and predicted diagnostics.

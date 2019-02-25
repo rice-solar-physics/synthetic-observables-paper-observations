@@ -75,14 +75,33 @@ probability_maps['d'] = p_maps
 test_error['d'] = err
 \end{pycode}
 
-% Describe random forest technique
-% how is data prepared
-% what is the RF actually doing
-% weaknesses and assumptions
+To systematically assess whether the observations of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019} and use our trained model to classify each observed pixel in terms of the heating frequency. In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, timelag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
 
-To systematically assess whether the observed emission measure slopes and timelags of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier on our predicted emission measure slopes and timelags from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each
+Following the explanation of \citet[chapter 8]{james_introduction_2013}, a decision tree recursively partitions the feature space of interest into a set of terminal nodes, or leaves, using a top-down, ``greedy'' approach called recursive binary splitting . At each branch in the tree, a feature and an associated split point are chosen such that the observations in the resulting nodes belong to a single class. A common measure of the homogeneity or \textit{purity} of each node is the Gini index,
+\begin{equation}
+    G_m = \sum_k \hat{p}_{mk} (1 - \hat{p}_{mk}),
+\end{equation}
+where $k$ indexes the class and $m$ indexes the node, and $\hat{p}_{mk}$ is the proportion of the observations at node $m$ that belong to class $k$. Note that as the purity of $m$ increases (i.e. $\hat{p}_{mk}\to0,1$), $G_m$ decreases ($G_m\to0$). Alternative measures of node purity may also be used \citep[see section 9.2.3 of][]{hastie_elements_2009}. For every resulting terminal node in the tree, the assigned class is determined by the most commonly occurring class of every observation at that node.
 
-\subsection{Different Feature Combinations}
+Decision trees are commonly used in classification problems because they are computationally efficient and relatively easy to interpret. Unlike many statistical learning techniques, decision trees do not assume any functional mapping between the inputs and outputs such that arbitrary, non-linear relatationships can be learned by the model. However, decision trees have two primary weaknesses: (1) they are known to have lower predictive accuracy than other more restrictive classification strategies and (2) they have high variance such that a single tree is not very robust to small changes in the training data \citep{james_introduction_2013}.
+
+While individual trees may be error prone, random forest classifiers, first developed by \citet{breiman_random_2001}, provide an ensemble statistical learning method for combining many noisy, decorrelated decision trees in order to improve prediction accuracy and robustness. As in the bootstrap-aggregation, or ``bagging'', technique developed by \citet{breiman_bagging_1996}, each tree in the random forest is trained on only a subset of the total training data in order to reduce the variance of the model. Additionally, at each node in each tree, a random subset of the total features are considered as candidates for splitting in order to decrease the correlation between trees. This further reduces the variance and prevents a single feature from dominating the decision in every tree. See chapter 15 of \citet{hastie_elements_2009} for a detailed discussion of random forests for both classification and regression.
+
+\subsection{Data Preparation and Model Parameters}\label{sec:data-prep}
+
+To build our classification model, we use the random forest classifier as implemented in the scikit-learn package for machine learning in Python \citep{pedregosa_scikit-learn_2011}. Using the predicted emission measure slopes, timelags, and maximum cross-correlations from \citetalias{barnes_understanding_2019}, we train a single random forest classifier composed of \py[manager_ml]|rf_options['n_estimators']| trees each with a maximum depth of \py[manager_ml]|rf_options['max_depth']|. At each node, $\left\lfloor\sqrt{31}\right\rfloor=\py|f'{int(np.sqrt(31)):.0f}'|$ possible split candidates are randomly selected from the $15\,\textup{timelags} + 15\,\textup{cross-correlations} + 1\,\textup{emission measure slope}=31$ total features.
+
+Before training the model, we flatten the predicted emission measure slope, timelag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images. As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation. If pixel is masked in one frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points. We stack each flattened array column-wise in features and row-wise in heating frequency such that all of our predicted training data are encapsulated in a single data matrix $X$ of dimension $n\times p$. $p=31$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency. The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$. We apply a $2/3-1/3$ test-train split to $X$ and $Y$ such that approximately $1/3$ of the predicted data are reserved for model evaluation to ensure that our model has not overfit the data. This produces four separate matrices: $X_\textup{train},Y_\textup{train},X_\textup{test},Y_\textup{test}$.
+
+The same procedure as described above is applied to the observed emission measure slopes, timelags, and cross-correlations as shown in \autoref{fig:em-slopes}, \autoref{fig:timelags}, and \autoref{fig:correlations}, respectively. These results are flattened to a single data matrix $X^\prime$ of dimension $n^\prime\times p$, where $n^\prime=n_x^\prime n_y^\prime - n^\prime_\textup{mask}=\py[manager_ml]|f'{X_observation.shape[0]:.0f}'|$. The random forest model is trained on $X_\textup{train},Y_\textup{train}$ and model performance is evaluated on the ``unseen'' test set $X_\textup{test},Y_\textup{test}$. The trained model is then applied to $X^\prime$ in order to predict the heating frequency in each pixel, $Y^\prime$.
+
+% PUT THIS HERE OR IN DISCUSSION? what consquences does this have (i.e. losing spatial information)
+
+\subsection{Different Feature Combinations}\label{sec:feature-combos}
+
+%Run classifier for EM, timelag+correlation, EM+timelag+correlation;
+% compare results
+% show heating frequency maps, probability maps for cases A-C
 
 \begin{pycode}[manager_ml]
 cases = ['a','b','c','d']
@@ -107,15 +126,11 @@ with io.StringIO() as f:
 \end{pycode}
 \py[manager_ml]|table|
 
-%Run classifier for EM, timelag+correlation, EM+timelag+correlation;
-% compare results
-% show heating frequency maps, probability maps for all three cases
-
 \begin{pycode}[manager_ml]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=4/3*0.965,
+    height_ratio=4/3*0.96,
     figure_width_context='columnwidth'
 ))
 axes = []
@@ -153,7 +168,7 @@ cax = fig.add_axes([
     axes[0].get_position().get_points()[0,0],
     axes[0].get_position().get_points()[1,1]+0.0075,
     axes[-1].get_position().get_points()[1,0] - axes[0].get_position().get_points()[0,0],
-    0.015
+    0.01
 ])
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
@@ -170,7 +185,7 @@ fig_probability_maps.fig_str = fig_str
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
-    height_ratio=0.965,
+    height_ratio=0.96,
     figure_width_context='columnwidth'
 ))
 axes = []
@@ -201,7 +216,7 @@ cax = fig.add_axes([
     axes[0].get_position().get_points()[0,0],
     axes[0].get_position().get_points()[1,1] + 0.01,
     axes[-1].get_position().get_points()[1,0] - axes[0].get_position().get_points()[0,0],
-    0.02
+    0.015
 ])
 cbar = fig.colorbar(im, cax=cax,orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
