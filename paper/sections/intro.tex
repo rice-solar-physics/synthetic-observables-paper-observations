@@ -11,3 +11,17 @@
 % note BV16 comparison between simulation and data
 % note VK17 comparison with EM slopes from W12
 % outline this paper
+
+In \citet[\citetalias{barnes_understanding_2019} hereafter]{barnes_understanding_2019}, we forward modeled emission from \AR{} NOAA 1158 as observed by the six EUV channels of the Atmospheric Imaging Assembly \citep[AIA,][]{lemen_atmospheric_2012} on the Solar Dynamics Observatory \citep[SDO,][]{pesnell_solar_2012} spacecraft. Using a potential field extrapolation combined with $5\times10^3$ separate instances of the Enthalpy-based Thermal Evolution of Loops model \citep[EBTEL,][]{klimchuk_highly_2008,cargill_enthalpy-based_2012,cargill_enthalpy-based_2012-1,barnes_inference_2016}, we predicted time-dependent intensities in each pixel of the \AR{} for a range of nanoflare heating frequencies. We defined the heating frequency in terms of the dimensionless ratio $\varepsilon = \langle\twait\rangle/\tau_{\textup{cool}}$, where $\tau_{\textup{cool}}$ is the fundamental cooling timescale due to thermal conduction and radiation and $\langle \twait\rangle$ is the average waiting time of all events on a given strand, and considered three different values of $\varepsilon$,
+\begin{equation}\label{eq:heating_types}
+    \varepsilon = 
+    \begin{cases} 
+        < 1, &  \text{high frequency},\\
+        \sim1, & \text{intermediate frequency}, \\
+        > 1, & \text{low frequency}.
+     \end{cases}
+\end{equation}
+
+From our predicted intensities, we computed two commonly used diagnostics for assessing the heating frequency. First, we calculated the emission measure distribution, \dem, in each pixel of the \AR{} using the regularized inversion method of \citet{hannah_differential_2012} and then computed the emission measure slope, $a$. Next, we applied the timelag analysis of \citet{viall_evidence_2012} to our predicted intensities for all three heating frequencies and computed maps of the timelag and the maximum cross-correlation for all 15 AIA channel pairs. We found that signatures of the heating frequency persist in both the emission measure slope and the timelag and that, in particular, negative timelags where the ``cool'' channel is 131 \AA{} provide a possible diagnostic for $\ge10$ MK plasma.
+
+In order to understand observational signatures of the frequency of energy deposition, two components are needed: (1) multiple diagnostics and (2) systematic comparisons between observations and simulations.
