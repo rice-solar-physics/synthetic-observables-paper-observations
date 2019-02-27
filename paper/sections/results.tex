@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Comparisons                               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Classification Model}\label{compare}
+\section{Classification Model}\label{sec:compare}
 
 \begin{pycode}[manager_ml]
 manager_ml = texfigure.Manager(
@@ -75,7 +75,7 @@ probability_maps['d'] = p_maps
 test_error['d'] = err
 \end{pycode}
 
-To systematically assess whether the observations of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating, we train a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019} and use our trained model to classify each observed pixel in terms of the heating frequency. In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, timelag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
+To systematically assess whether the observations of NOAA 1158 are consistent with high-, intermediate-, or low-frequency heating as defined in \autoref{eq:heating_types}, we train a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019} and use our trained model to classify each observed pixel in terms of the heating frequency. In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, timelag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
 
 Following the explanation of \citet[chapter 8]{james_introduction_2013}, a decision tree recursively partitions the feature space of interest into a set of terminal nodes, or leaves, using a top-down, ``greedy'' approach called recursive binary splitting . At each branch in the tree, a feature and an associated split point are chosen such that the observations in the resulting nodes belong to a single class. A common measure of the homogeneity or \textit{purity} of each node is the Gini index,
 \begin{equation}\label{eq:gini-index}
@@ -91,7 +91,7 @@ While individual trees may be error prone, random forest classifiers, first deve
 
 To build our classification model, we use the random forest classifier as implemented in the scikit-learn package for machine learning in Python \citep{pedregosa_scikit-learn_2011}. Using the predicted emission measure slopes, timelags, and maximum cross-correlations from \citetalias{barnes_understanding_2019}, we train a single random forest classifier composed of \py[manager_ml]|rf_options['n_estimators']| trees each with a maximum depth of \py[manager_ml]|rf_options['max_depth']|. At each node, $\left\lfloor\sqrt{31}\right\rfloor=\py|f'{int(np.sqrt(31)):.0f}'|$ possible split candidates are randomly selected from the $15\,\textup{timelags} + 15\,\textup{cross-correlations} + 1\,\textup{emission measure slope}=31$ total features.
 
-Before training the model, we flatten the predicted emission measure slope, timelag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images. As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation. If pixel is masked in one frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points. We stack each flattened array column-wise in features and row-wise in heating frequency such that all of our predicted training data are encapsulated in a single data matrix $X$ of dimension $n\times p$. $p=31$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency. The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$. We apply a $2/3-1/3$ test-train split to $X$ and $Y$ such that approximately $1/3$ of the predicted data are reserved for model evaluation to ensure that our model has not overfit the data. This produces four separate matrices: $X_\textup{train},Y_\textup{train},X_\textup{test},Y_\textup{test}$. The data are not centered to a mean of 0 or scaled to unit standard deviation.
+Before training the model, we flatten the predicted emission measure slope, timelag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images. As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation. If a pixel is masked in one frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points. We stack each flattened array column-wise in features and row-wise in heating frequency such that all of our predicted training data are encapsulated in a single data matrix $X$ of dimension $n\times p$. $p=31$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency. The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$. We apply a $2/3-1/3$ test-train split to $X$ and $Y$ such that approximately $1/3$ of the predicted data are reserved for model evaluation to ensure that our model has not overfit the data. This produces four separate matrices: $X_\textup{train},Y_\textup{train},X_\textup{test},Y_\textup{test}$. The data are not centered to a mean of 0 or scaled to unit standard deviation.
 
 The same procedure as described above is applied to the observed emission measure slopes, timelags, and cross-correlations as shown in \autoref{fig:em-slopes}, \autoref{fig:timelags}, and \autoref{fig:correlations}, respectively. These results are flattened to a single data matrix $X^\prime$ of dimension $n^\prime\times p$, where $n^\prime=n_x^\prime n_y^\prime - n^\prime_\textup{mask}=\py[manager_ml]|f'{X_observation.shape[0]:.0f}'|$. The random forest model is trained on $X_\textup{train},Y_\textup{train}$ and model performance is evaluated on the ``unseen'' test set $X_\textup{test},Y_\textup{test}$. The trained model is then applied to $X^\prime$ in order to predict the heating frequency in each pixel, $Y^\prime$.
 
@@ -241,19 +241,17 @@ fig_frequency_maps.fig_str = fig_str
 
 \subsection{Feature Importance}\label{sec:feature-importance}
 
-% Talk about feature importance, give expression using the Gini importance, Gini impurity
-% Discuss results from fourth case
-% what does this say about the importance of these variables?
-
-In addition to the predicted heating frequency, $Y^\prime$, for a set of features, $X^\prime$, it is also useful to know which of the $p$ features is most important in deciding to which class each observation (pixel) belongs. One measure of the mportance of each feature is the decrease in the Gini index,
+In addition to the predicted heating frequency, $Y^\prime$, for a set of features, $X^\prime$, it is also useful to know which of the $p$ features is most important in deciding to which class each observation (pixel) belongs. One measure of the importance of each feature is the decrease in the Gini index,
 \begin{equation}\label{eq:gini_gain}
     \Delta G_m = \frac{M_m}{M}\left( G_m - \frac{M_{m,R}}{M_m}G_{m,R} - \frac{M_{m,L}}{M_m}G_{m,L} \right),
 \end{equation}
 where $G_m$ is the Gini index as given by \autoref{eq:gini-index}, $M$ is the total number of samples in the tree, $M_m$ is the total number of samples at parent node $m$, $M_{m,R(L)}$ is the total number of samples at the right (left) child node, and $G_{m,R(L)}$ is the Gini index at the right (left) child node \citep{sandri_bias_2008}. The importance of a particular feature in the random forest classification is then determined by summing \autoref{eq:gini_gain} over all nodes which split on that feature for every tree and averaging over all trees \citep{breiman_classification_1984}.
 
+Note that if $G_{m,R}=G_{m,L}=G_m$, $\Delta G_m=0$ because the split at node $m$ did not do a better job of discriminating between classes than the split at the previous node. However, if $G_{m,R}$ or $G_{m,L}$ decreases such that purity of the left or right node increases, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
+
 \begin{pycode}[manager_ml]
 all_labels = np.array([r'$\tau_{{{},{}}}$'.format(*cp) for cp in channel_pairs] +
-                    [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + [r'$a$'])
+                      [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + [r'$a$'])
 tab = {
     'Feature': all_labels[i_important[:10]],
     'Importance': importances[i_important[:10]]/importances[i_important[0]],

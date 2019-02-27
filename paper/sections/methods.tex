@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Data                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Observations and Analysis}\label{observations}
+\section{Observations and Analysis}\label{sec:observations}
 
 \begin{pycode}[manager_data]
 manager_data = texfigure.Manager(
@@ -13,7 +13,7 @@ manager_data = texfigure.Manager(
 )
 \end{pycode}
 
-We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR{} s originally compiled by \citet{warren_systematic_2012} and was also studied by \citet{viall_survey_2017}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center \citep[JSOC,][]{couvidat_observables_2016} archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the drms Python client. This amounts to a total of 21597 images across all six channels and the entire observing window.
+We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR s originally compiled by \citet{warren_systematic_2012} and was also studied by \citet{viall_survey_2017}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center \citep[JSOC,][]{couvidat_observables_2016} archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the drms Python client. This amounts to a total of 21597 images across all six channels and the entire observing window.
 
 After downloading the data, we apply the \texttt{aiaprep} method, as implemented in SunPy \citep{sunpy_community_sunpypython_2015}, to each full-disk image in order to process the level-1 data into a level-1.5 data. Next, we align each image with the observation at 2011 February 12 15:33:45 UTC (the time of the original observation of NOAA 1158 by \citet{warren_systematic_2012}) by ``derotating'' each image using the Snodgrass empirical rotation rate \citep{snodgrass_magnetic_1983}. After aligning the images in every channel to a common time, we crop each full-disk image such that the bottom left corner of the image is $(-440\arcsec,-375\arcsec)$ and the top right corner is $(-140\arcsec,-75\arcsec)$, where the two coordinates are the longitude and latitude, respectively, in the helioprojective coordinate system \citep[see][]{thompson_coordinate_2006} defined by an observer at the location of the SDO spacecraft on 2011 February 12 15:33:45. \autoref{fig:intensity-maps} shows the level-1.5, derotated and cropped AIA observations of \AR{} NOAA 1158 at 2011 February 12 15:33:45 in all six EUV channels of interest.
 
@@ -79,7 +79,7 @@ fig_intensity_maps.fig_str = fig_str
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   EM Slopes                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Emission Measure Slopes}\label{em_slopes}
+\subsection{Emission Measure Slopes}\label{sec:em_slopes}
 
 \begin{pycode}[manager_em]
 manager_em = texfigure.Manager(
@@ -92,9 +92,7 @@ manager_em = texfigure.Manager(
 from formatting import heating_palette
 \end{pycode}
 
-After prepping, aligning, and cropping all 12 hours of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute two diagnostics of the heating: the emission measure slope and the timelag. First, we compute the emission measure distribution, \dem, in each pixel of the \AR{} from the time-averaged intensities from all six channels using the regularized inversion method of \citet{hannah_differential_2012}. As in \citetalias{barnes_understanding_2019}, we use temperature bins of width $\Delta\log T=0.1$ with the left and right edges at $10^{5.5}$ K and $10^{7.2}$ K, respectively. The uncertainties on the intensities are estimated using \texttt{aia\_bp\_estimate\_error.pro} procedure provided by the AIA instrument team in the SolarSoftware package \citep[SSW,][]{freeland_data_1998}. 
-
-As we noted in the introduction to \citetalias{barnes_understanding_2019}, the emission measure distribution is well-described by the power-law relationship $\textup{EM}(T)\sim T^a$, for $a>0$, over the temperature range $10^{5.5}\lesssim T\lesssim10^{6.5}$ K \citep{jordan_structure_1975,jordan_structure_1976} where $a$ is the emission measure slope. $a$ parameterizes the width of the emission measure distribution and as such is a commonly used diagnostic for the heating frequency \citep[e.g.][]{tripathi_emission_2011,winebarger_using_2011,warren_constraints_2011,mulu-moore_can_2011,bradshaw_diagnosing_2012,schmelz_cold_2012,reep_diagnosing_2013,cargill_active_2014,del_zanna_evolution_2015}. 
+After prepping, aligning, and cropping all 12 hours of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute two diagnostics of the heating: the emission measure slope and the timelag. First, we compute the emission measure distribution, \dem, in each pixel of the \AR{} from the time-averaged intensities from all six channels using the regularized inversion method of \citet{hannah_differential_2012}. As in \citetalias{barnes_understanding_2019}, we use temperature bins of width $\Delta\log T=0.1$ with the left and right edges at $10^{5.5}$ K and $10^{7.2}$ K, respectively. The uncertainties on the intensities are estimated using the \texttt{aia\_bp\_estimate\_error.pro} procedure provided by the AIA instrument team in the SolarSoftware package \citep[SSW,][]{freeland_data_1998}.  
 
 \begin{pycode}[manager_em]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -174,12 +172,12 @@ fig_em_slopes.fig_str = fig_str
 
 The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$, where $T_{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white.
 
-The right panel of \autoref{fig:em-slopes} shows the distribution of emission measure slopes for every pixel in the \AR{} where $r^2\ge\py|rsquared_threshold|$. As noted in the legend, the black histogram denotes the slopes computed from the real AIA observations while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively. Note that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR.
+The right panel of \autoref{fig:em-slopes} shows the distribution of emission measure slopes for every pixel in the \AR{} where $r^2\ge\py|rsquared_threshold|$. As noted in the legend, the black histogram denotes the slopes computed from the real AIA observations while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively, as defined in \autoref{eq:heating_types}. Note that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Timelags}\label{timelags}
+\subsection{Timelags}\label{sec:timelags}
 
 \begin{pycode}[manager_timelags]
 manager_timelags = texfigure.Manager(
