@@ -1,7 +1,6 @@
 """
 Few simple utilities for formatting figures nicely
 """
-import numpy as np
 import seaborn
 import matplotlib.colors
 

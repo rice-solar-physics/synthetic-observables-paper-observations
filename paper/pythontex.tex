@@ -38,6 +38,7 @@ import texfigure
 pytex.formatter = texfigure.repr_latex_formatter
 
 import numpy as np
+from scipy.interpolate import splev
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
@@ -50,6 +51,7 @@ from astropy.io import ascii
 from astropy.coordinates import SkyCoord
 from astropy.visualization import ImageNormalize, AsinhStretch, SqrtStretch
 import synthesizAR
+from synthesizAR.instruments import InstrumentSDOAIA
 
 # Set some plot styling here
 plt.rcParams['font.family'] = 'serif'
