@@ -132,6 +132,8 @@ cax = fig.add_axes([pos[0,0], pos[1,1]+0.01, pos[1,0]-pos[0,0], 0.025])
 cbar = fig.colorbar(im,cax=cax, orientation='horizontal',)
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.set_ticks([2,3,4,5])
+cbar.ax.tick_params(width=0.5)
+cbar.outline.set_linewidth(0.5)
 ### Histograms ###
 ax = fig.add_subplot(122,)
 bins = np.arange(0, 8, 0.05)
@@ -175,7 +177,7 @@ fig_em_slopes.fig_str = fig_str
 
 The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$, where $T_\textup{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white. 
 
-The emission measure slope tends to be more steep near the center of the \AR{} and tends to increase from $\sim2.5$ to $>5$ as we move from the periphery to the inner core of the \AR{}. This result is consistent with \citet{del_zanna_evolution_2015} who computed the emission measure slope in each pixel of \AR{} NOAA 1193 and found that $a$ was greatest in the center of the \AR{}. The exception to this trend is the spatially-coherent structure on the lower edge of the \AR{} which shows emission measure slopes $>5$. A few regions on the top edge also show higher emission measure slopes. The patchy appearance in some areas of the slope map is due to the different values of $T_\textup{peak}$ and the finite width of the temperature bins in the \dem.
+The emission measure slope tends to be more steep near the center of the \AR{} and tends to increase from $\sim2.5$ to $>5$ as we move from the periphery to the inner core of the \AR{}. This result is consistent with \citet{del_zanna_evolution_2015} who computed the emission measure slope in each pixel of \AR{} NOAA 1193 and found that $a$ was greatest near the middle of the \AR{}. The exception to this trend is the spatially-coherent structure on the lower edge of the \AR{} which shows emission measure slopes $>5$. A few regions on the top edge also show higher emission measure slopes. The patchy appearance in some areas of the slope map is due to the different values of $T_\textup{peak}$ and the finite width of the temperature bins in the \dem.
 
 The right panel of \autoref{fig:em-slopes} shows the distribution of emission measure slopes for every pixel in the \AR{} where $r^2\ge\py|rsquared_threshold|$. As noted in the legend, the black histogram denotes the slopes computed from the real AIA observations while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively, as defined in \autoref{eq:heating_types}. The mean of the observed distribution of $a$ is \py[manager_em]|f'{a_mean:.2f}'| and the standard deviation is \py[manager_em]|f'{a_std:.2f}'|. 
 
@@ -199,10 +201,7 @@ from synthesizAR.visualize import bgry_004_idl_cmap
 from formatting import qualitative_palette
 \end{pycode}
 
-% Discussion of observed timelags and cross-correlation values
-% Possibly put histograms of observations versus models here too
 % Emphasize the point that no single heating model is consistent with the observations. Need multiple heating frequencies; this will lead into random forest stuff
-% Should we have more discussion on timelags here? This is really already covered in VK17...
 
 \begin{pycode}[manager_timelags]
 aia = InstrumentSDOAIA([0,1]*u.s, None)
@@ -291,6 +290,8 @@ cax = fig.add_axes([
 ])
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
+cbar.ax.tick_params(width=0.5)
+cbar.outline.set_linewidth(0.5)
 fig_timelags = manager_timelags.save_figure('timelags')
 fig_timelags.caption = r'Timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. The value of each pixel indicates the temporal offset, in seconds, which maximizes the cross-correlation \citepalias[see appendix of][]{barnes_understanding_2019}. The range of the colorbar is $\pm5000$ s. If $\max\mathcal{C}_{AB}<0.1$, the pixel is masked and colored white. Each map has been cropped to emphasize the core of the \AR{} such that the bottom left corner and top right corner of each image corresponds to $(-440\arcsec,-380\arcsec)$ and $(-185\arcsec,-125\arcsec)$, respectively.'
 fig_timelags.figure_env_name = 'figure*'
@@ -299,11 +300,11 @@ fig_timelags.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_timelags|
 
-\autoref{fig:timelags} shows the timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative timelags while reds, oranges, and yellows correspond to positive timelags. Olive green denotes zero timelag. The range of the colorbar is $\pm5000$ s. If the maximum correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white.
+\autoref{fig:timelags} shows the timelag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative timelags while reds, oranges, and yellows correspond to positive timelags. Olive green denotes zero timelag. The range of the colorbar is $\pm5000$ s. If the maximum cross-correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white.
 
 For the majority of the channel pairs, we find persistent positive timelags across most of the \AR{}, indicative of plasma cooling through the AIA passbands. The 94-131, 211-131, 193-171, and 193-131 \AA{} pairs show coherent positive timelags near the edge of the \AR{}, but zero timelag in the center of the \AR{}. On the other hand, the 211-193 and 171-131 \AA{} channel pairs show zero timelag in nearly every pixel of the \AR{}. From \autoref{fig:aia-response}, we see that both of these channel pairs are strongly overlapping in temperature space such that their respective peaks in intensity are likely to be close to coincident in time as the plasma cools. 
 
-Additionally, the 94-335, 94-193, and 94-211 \AA{} pairs all show significant coherent negative timelags. Because the 94 \AA{} channel is bimodal in temperature (see \autoref{fig:aia-response}), a negative timelag is indicative of the plasma cooling first through the ``cool'' channel and then through the cooler component of the 94 \AA{} bandpass. The 94-171 and 94-131 pairs show only positive timelags because the 171 \AA{} and 131 \AA{} channels peak at cooler temperatures than the cool component of the 94 \AA{} channel. See \citet{viall_survey_2017} for a more detailed discussion of the timelag results from NOAA 1158. Note that unlike the predicted timelags in \citetalias{barnes_understanding_2019}, none of the 131 \AA{} channel pairs show any coherent negative timelags and, in particular, the inner cores of each 131 \AA{} pair show zero timelag.
+Additionally, the 94-335, 94-193, and 94-211 \AA{} pairs all show significant coherent negative timelags. Because the 94 \AA{} channel is bimodal in temperature (see \autoref{fig:aia-response}), a negative timelag is indicative of the plasma cooling first through the ``cool'' channel and then through the cooler component of the 94 \AA{} bandpass. The 94-171 and 94-131 pairs show only positive timelags because the 171 \AA{} and 131 \AA{} channels peak at cooler temperatures than the cool component of the 94 \AA{} channel. See \citet{viall_survey_2017} for a more detailed discussion of the timelag results from NOAA 1158. Note that unlike the predicted timelags in \citetalias{barnes_understanding_2019}, none of the pairs involving the 131 \AA{} channel, which is also bimodeal in temperature, show any coherent negative timelags and, in particular, the inner cores of each 131 \AA{} pair show zero timelag.
 
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
@@ -359,6 +360,8 @@ cax = fig.add_axes([
 ])
 cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
 cbar.ax.xaxis.set_ticks_position('top')
+cbar.ax.tick_params(width=0.5)
+cbar.outline.set_linewidth(0.5)
 fig_correlations = manager_timelags.save_figure('correlations')
 fig_correlations.caption = r'Same as \autoref{fig:timelags} except here we show the maximum value of the cross-correlation, $\max\mathcal{C}_{AB}$, for each channel pair.'
 fig_correlations.figure_env_name = 'figure*'
@@ -367,6 +370,6 @@ fig_correlations.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_correlations|
 
-\autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this case, we do not mask pixels with $\max\mathcal{C}_{AB}<\py|correlation_threshold|$. Though the value of the cross-correlation can range from -1 (perfectly anti-correlated) to 1 (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel in the pair are in phase.
+\autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this figure, we do not mask any of the pixels. Though the value of the cross-correlation can range from $-1$ (perfectly anti-correlated) to $+1$ (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel pair are in phase.
 
 In every channel pair, we find that the maximum cross-correlation is highly structured, indicating that these loops and the surrounding diffuse emission are evolving coherently through the AIA passbands. In most channel pairs, the inner core tends to have the highest cross-correlation while areas near the corners of the images have low cross-correlation. Note that the channel pairs which had the most zero timelags in \autoref{fig:timelags}, 211-193 and 171-131, show high cross-correlations across the entire \AR{}. This again emphasizes the point that zero timelags do not correspond to steady heating as we would expect low cross-correlation and no preferred timelag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.

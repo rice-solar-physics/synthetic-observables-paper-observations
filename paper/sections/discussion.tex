@@ -10,8 +10,14 @@
 % what does Table 2 of feature importances say about these variables?
 % needs application to more ARs
 
-%NOTE: WE CANNOT ASSESS THE ACCURACY OF THE WHOLE MODEL; WE CAN ONLY COMPARE DIFFERENT POINTS IN OUR PARAMETER SPACE
-
+% discussion of parameter importance
 %NOTE: EFFECT OF FLATTENING TO A SINGLE ARRAY; HOW DOES THIS AFFECT DECISION MAKING? what consquences does this have (i.e. losing spatial information)
 %% This goes here I think because it involves a discussion of the distribution of parameters for each heating frequency and how they might change
 
+As shown in \autoref{tab:importance}, the most important feature in deciding the heating frequency classification of an observed pixel is the emission measure slope, $a$, while the most important timelag is nearly an order of magnitude less important than $a$ as measured by \autoref{eq:gini_gain}. In Figure 7 of \citetalias{barnes_understanding_2019}, we found that high-, intermediate-, and low-frequency nanoflares all produced qualitatively different spatial distributions of timelags. However, when that data is flattened to be input into the classifier (\autoref{sec:data-prep}), all spatial information is lost. In Figure 9 of \citetalias{barnes_understanding_2019}, we showed that the distribution of timelags for all channel pairs broadens with increasing frequency. However, the distributions are still heavily overlapping, particularly compared to the emission measure slope (right panel of \autoref{fig:em-slopes}), making it difficult for the classifier to distinguish between different heating frequencies using only the timelag.
+
+% show distributions of cross-correlations, point out they are all from similar temperature 
+
+The relative unimportance of the timelag is due in part to the flattening of the images and the treatment of each pixel as an independent measurement. More sophisticated classification methods, such as a convolutional neural network, could be used in order to incorporate spatial information into the frequency classification process. However, this would also require many separate realizations of the emission measure slope, timelag, and maximum cross-correlation maps as well as significantly more computational time and resources.
+
+An important caveat to this method as we have applied it here is that the random forest classifier trained on the simulated emission measure slopes, timelags, and maximum cross-correlations cannot provide any assessment of the accuracy of our model as described in \citetalias{barnes_understanding_2019}. The classifier can only say, out of the provided classes (high-, intermediate-, or low-frequency), which type of heating best describes the data. However, given another method for assessing the heating frequency or perhaps a more sophisticated forward-modeling code, a random forest (or some alternative classification method) could be used to compare these two approaches. In this way, machine learning methods also provide a promising strategy for reconciling different modeling approaches.
