@@ -175,13 +175,13 @@ fig_em_slopes.fig_str = fig_str
 \end{pycode}
 \py[manager_em]|fig_em_slopes|
 
-The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the observed emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$, where $T_\textup{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white. 
+The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the observed emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T \le T_{peak}$, where $T_\textup{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white. 
 
 The emission measure slope tends to be more steep near the center of the \AR{} and tends to increase from $\sim2.5$ to $>5$ as we move from the periphery to the inner core of the \AR{}. This result is consistent with \citet{del_zanna_evolution_2015} who computed the emission measure slope in each pixel of \AR{} NOAA 1193 and found that $a$ was greatest near the middle of the \AR{}. The exception to this trend is the spatially-coherent structure on the lower edge of the \AR{} which shows emission measure slopes $>5$. A few regions on the top edge also show higher emission measure slopes. The patchy appearance in some areas of the slope map is due to the different values of $T_\textup{peak}$ and the finite width of the temperature bins in the \dem.
 
 The right panel of \autoref{fig:em-slopes} shows the distribution of emission measure slopes for every pixel in the \AR{} where $r^2\ge\py|rsquared_threshold|$. As noted in the legend, the black histogram denotes the slopes computed from the real AIA observations while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively. The mean of the observed distribution of $a$ is \py[manager_em]|f'{a_mean:.2f}'| and the standard deviation is \py[manager_em]|f'{a_std:.2f}'|. 
 
-We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR. In particular, the observed distribution of slopes overlaps quite strongly with both the intermediate- and high frequency-slopes. Compared to the simulated distributions of $a$ for low- and intermediate-frequency heating, the observed distribution is wide with a relatively flat top between $a\approx2$ and $a\approx3$. The observed distribution is not strongly peaked about a single value of $a$. 
+We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR. In particular, the observed distribution of slopes overlaps quite strongly with both the intermediate- and high frequency-slopes. Compared to the simulated distributions of $a$ for low- and intermediate-frequency heating, the observed distribution is wide with a relatively flat top between $a\approx3$ and $a\approx4$. The observed distribution is not strongly peaked about a single value of $a$. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Timelags                                  %
@@ -206,8 +206,8 @@ aia = InstrumentSDOAIA([0,1]*u.s, None)
 T = np.logspace(4,8,500) * u.K
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
-    scale=0.5 if is_onecolumn() else 1,
-    height_ratio=1,
+    scale=0.75 if is_onecolumn() else 1,
+    height_ratio=2/3,
     figure_width_context='columnwidth'
 ))
 ax = fig.gca()
@@ -223,12 +223,12 @@ ax.set_ylim(0,1.02)
 ax.legend(loc='lower center', frameon=False, bbox_to_anchor=(0.5,1.02), ncol=3)
 tfig = manager_timelags.save_figure('aia-response', fext='.pdf')
 tfig.caption = r'Temperature response functions for all six EUV channels of AIA as a function of temperature computed by the \texttt{aia\_get\_response.pro} procedure in SSW. Each response function is normalized to its maximum.'
-tfig.figure_width = r'0.5\columnwidth' if is_onecolumn() else r'\columnwidth'
+tfig.figure_width = r'0.75\columnwidth' if is_onecolumn() else r'\columnwidth'
 tfig.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|tfig|
 
-Next, we apply the timelag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution. As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the timelag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}. We consider all possible offsets over the interval $\pm6$ hours. Following the convention of \citet{viall_evidence_2012}, the channel pairs are ordered such that the ``hot'' channel is listed first, meaning that \textit{a positive timelag indicates cooling plasma}. The response for each of the six EUV channels of AIA as a function of temperature is shown in \autoref{fig:aia-response}. The details of the cross-correlation and timelag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
+Next, we apply the timelag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution. As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible ``hot-cool'' pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the timelag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}. We consider all possible offsets over the interval $\pm6$ hours. Following the convention of \citet{viall_evidence_2012}, the channel pairs are ordered such that the ``hot'' channel is listed first, meaning that \textit{a positive timelag indicates cooling plasma}. The response for each of the six EUV channels of AIA as a function of temperature is shown in \autoref{fig:aia-response}. The details of the cross-correlation and timelag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
 
 Note that \citet{viall_survey_2017} carried out the timelag analysis on this same \AR{}, NOAA 1158 (their region 2), as part of a survey of the catalogue of \AR{}s compiled by \citet{warren_systematic_2012}. We repeat this analysis here to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019}.
 
