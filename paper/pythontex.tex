@@ -1,5 +1,5 @@
 % PythonTeX Configuration
-\usepackage{pythontex}
+\usepackage[depythontex]{pythontex}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % PythonTeX Bug Fix % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
@@ -33,6 +33,9 @@
 # Imports
 import os
 import io
+import sys
+
+sys.path.append('./python/')
 
 import texfigure
 pytex.formatter = texfigure.repr_latex_formatter
@@ -52,6 +55,10 @@ from astropy.coordinates import SkyCoord
 from astropy.visualization import ImageNormalize, AsinhStretch, SqrtStretch
 import synthesizAR
 from synthesizAR.instruments import InstrumentSDOAIA
+
+# Color palettes and color maps
+from formatting import heating_palette, qualitative_palette
+from colormaps import *
 
 # Set some plot styling here
 plt.rcParams['font.family'] = 'serif'

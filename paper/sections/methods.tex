@@ -197,8 +197,6 @@ manager_timelags = texfigure.Manager(
     number=3,
 )
 file_format = os.path.join(manager_timelags.data_dir, 'observations', '{}_{}_{}.fits')
-from synthesizAR.visualize import bgry_004_idl_cmap
-from formatting import qualitative_palette
 \end{pycode}
 
 \begin{pycode}[manager_timelags]
@@ -244,7 +242,7 @@ plot_params = {
     'annotate': False,
     'vmin': -(5e3*u.s).to(u.s).value,
     'vmax': (5e3*u.s).to(u.s).value,
-    'cmap': bgry_004_idl_cmap,
+    'cmap': 'idl_bgry_004',
 }
 axes = []
 for i,cp in enumerate(channel_pairs):

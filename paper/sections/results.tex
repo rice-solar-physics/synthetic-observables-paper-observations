@@ -11,7 +11,6 @@ manager_ml = texfigure.Manager(
     data_dir='data',
     number=4,
 )
-from formatting import heating_palette, heating_cmap
 from classify import prep_data, classify_ar
 X, Y, X_observation, bad_pixels = prep_data(
     manager_ml.data_dir,
@@ -198,7 +197,14 @@ for i,c in enumerate(('a','b','c','d')):
                  SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=m.coordinate_frame))
     ax = fig.add_subplot(2, 2, i+1, projection=m)
     axes.append(ax)
-    im = m.plot(axes=ax, title=False,annotate=False, vmin=-0.5, vmax=2.5, cmap=heating_cmap())
+    im = m.plot(
+        axes=ax,
+        title=False,
+        annotate=False,
+        vmin=-0.5,
+        vmax=2.5,
+        cmap='discrete_heating_frequency',
+    )
     ax.grid(alpha=0)
     # Axes and ticks
     lon, lat = ax.coords
