@@ -5698,9 +5698,9 @@ by 1\relax}\ignorespaces}%
 %% standardized, so didn't make an user interface
 %% to change the colors easily.
 
-\expandafter\def\csname editcolor1\endcsname{black}% was magenta
-\expandafter\def\csname editcolor2\endcsname{black}% was blue
-\expandafter\def\csname editcolor3\endcsname{black}% was violet
+\expandafter\def\csname editcolor1\endcsname{magenta}% was magenta
+\expandafter\def\csname editcolor2\endcsname{blue}% was blue
+\expandafter\def\csname editcolor3\endcsname{violet}% was violet
 
 \newcount\colorcount
 \def\edit#1#2{{\colorcount=#1\relax%
@@ -5850,8 +5850,8 @@ to 20pt{\hfill}}\vskip12pt}%
 %% Change Feb 2016, to allow optional argument for time/date, and/or editor initials, etc.
 
 
-\providecolor{trackchange}{cmyk}{0,0,0,1}
-\providecolor{explain}{cmyk}{0,0,0,1}
+\providecolor{trackchange}{cmyk}{0,1,1,0}
+\providecolor{explain}{cmyk}{1,1,0,1}
 
 \newif\ifsilent
 
