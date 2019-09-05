@@ -5,14 +5,13 @@ import os
 
 import numpy as np
 from sunpy.map import Map
-from sklearn.preprocessing import LabelEncoder, scale
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 
 def prep_data(top_dir, channel_pairs, heating,
-              correlation_threshold=0.1, rsquared_threshold=0.75,
-              scale_slope=False, scale_correlation=False, scale_timelag=False):
+              correlation_threshold=0.1, rsquared_threshold=0.75,):
     """
     Import and reshape model and observational data
 
@@ -22,6 +21,7 @@ def prep_data(top_dir, channel_pairs, heating,
     channel_pairs : `list`
     heating : `list`
     correlation_threshold : `float`, optional
+    rsquared_threshold : `float`, optional
     """
     file_format = os.path.join(top_dir, '{}', '{}_{}_{}.fits')
     # Mask timelags with sufficiently low cross-correlation
@@ -33,8 +33,8 @@ def prep_data(top_dir, channel_pairs, heating,
     all_rsquared = np.stack(
         [Map(os.path.join(top_dir, f'{h}', 'em_slope_rsquared.fits')).data
          for h in heating])
-    all_rsquared[np.isnan(all_rsquared)] = 0.0  # Ignore any r^2 that are
-    all_rsquared[np.isinf(all_rsquared)] = 0.0  # undefined
+    isinf_or_isnan = np.logical_or(np.isnan(all_rsquared), np.isinf(all_rsquared))
+    all_rsquared[isinf_or_isnan] = rsquared_threshold - 1.  # something below the threshold
     slope_mask = (all_rsquared < rsquared_threshold).any(axis=0)
     # Composite Mask
     bad_pixels = np.stack((correlation_mask, slope_mask),).any(axis=0)
@@ -49,12 +49,7 @@ def prep_data(top_dir, channel_pairs, heating,
         [Map('../paper/data/{}/em_slope.fits'.format(h)).data[np.where(~bad_pixels)].flatten()
          for h in heating])
     X_slope = X_slope[:, np.newaxis]
-    # Stack and optionally scale each data set
-    X = np.hstack((
-        scale(X_timelag, axis=0, with_mean=scale_timelag, with_std=scale_timelag,),
-        scale(X_correlation, axis=0, with_mean=scale_correlation, with_std=scale_correlation,),
-        scale(X_slope, axis=0, with_mean=scale_slope, with_std=scale_slope,)
-    ))
+    X = np.hstack(X_timelag, X_correlation, X_slope)
     # Load labels
     Y = np.hstack([np.where(~bad_pixels)[0].shape[0]*[h] for h in heating])
     # Create mask for real data
@@ -68,19 +63,16 @@ def prep_data(top_dir, channel_pairs, heating,
     bad_pixels = np.stack((correlation_mask, slope_mask),).any(axis=0)
     # Load all three real datasets
     X_timelag = np.stack(
-        [Map(file_format.format('observations', 'timelag', *cp)).data[np.where(~bad_pixels)].flatten()
+        [Map(file_format.format(
+            'observations', 'timelag', *cp)).data[np.where(~bad_pixels)].flatten()
          for cp in channel_pairs], axis=1)
     X_correlation = np.stack(
-        [Map(file_format.format('observations', 'correlation', *cp)).data[np.where(~bad_pixels)].flatten()
+        [Map(file_format.format(
+            'observations', 'correlation', *cp)).data[np.where(~bad_pixels)].flatten()
          for cp in channel_pairs], axis=1)
     X_slope = Map('../paper/data/observations/em_slope.fits').data[np.where(~bad_pixels)].flatten()
     X_slope = X_slope[:, np.newaxis]
-    # Stack and optionally scale each data set
-    X_observation = np.hstack((
-        scale(X_timelag, axis=0, with_mean=scale_timelag, with_std=scale_timelag,),
-        scale(X_correlation, axis=0, with_mean=scale_correlation, with_std=scale_correlation,),
-        scale(X_slope, axis=0, with_mean=scale_slope, with_std=scale_slope,)
-    ))
+    X_observation = np.hstack(X_timelag, X_correlation, X_slope)
 
     return X, Y, X_observation, bad_pixels
 
@@ -88,7 +80,7 @@ def prep_data(top_dir, channel_pairs, heating,
 def classify_ar(classifier_params, X_model, Y_model, X_observation, bad_pixels, **kwargs):
     """
     Train random forest classifier on simulation data, apply to real data
-    
+
     Parameters
     ----------
     classifier_params {[type]} -- [description]
