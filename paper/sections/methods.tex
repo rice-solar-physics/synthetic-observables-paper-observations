@@ -2,7 +2,7 @@
 %                                   Data                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Observations and Analysis}\label{sec:observations}
-
+% spell-checker: disable %
 \begin{pycode}[manager_data]
 manager_data = texfigure.Manager(
     pytex, './',
@@ -12,11 +12,13 @@ manager_data = texfigure.Manager(
     number=1,
 )
 \end{pycode}
+% spell-checker: enable %
 
 We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC. The \AR{} was chosen from the catalogue of \AR s originally compiled by \citet{warren_systematic_2012} and was also studied by \citet{viall_survey_2017}. The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center \citep[JSOC,][]{couvidat_observables_2016} archive at the full instrument cadence of 12 s and the full spatial resolution of 0.6\arcsec-per-pixel using the drms Python client\authorcomment1{[REF.]}. This amounts to a total of 21597 images across all six channels and the entire 12 hour observing window.
 
 After downloading the data, we apply the \texttt{aiaprep} method, as implemented in SunPy \citep{sunpy_community_sunpypython_2015}, to each full-disk image in order to process the level-1 data into level-1.5 data and divide each image by the exposure time. Next, we align each image with the observation at 2011 February 12 15:33:45 UTC (the time of the original observation of NOAA 1158 by \citet{warren_systematic_2012}) by ``derotating'' each image using the Snodgrass empirical rotation rate \citep{snodgrass_magnetic_1983}. After aligning the images in every channel to a common time, we crop each full-disk image such that the bottom left corner of the image is $(-440\arcsec,-375\arcsec)$ and the top right corner is $(-140\arcsec,-75\arcsec)$, where the two coordinates are the longitude and latitude, respectively, in the helioprojective coordinate system \citep[see][]{thompson_coordinate_2006} defined by an observer at the location of the SDO spacecraft on 2011 February 12 15:33:45. \autoref{fig:intensity-maps} shows the level-1.5, derotated and cropped AIA observations of \AR{} NOAA 1158 at 2011 February 12 15:33:45 in all six EUV channels of interest.
 
+% spell-checker: disable %
 \begin{pycode}[manager_data]
 fits_files = [
     'aia_lev1.5_20110212T153238_94_cutout.fits',
@@ -35,10 +37,10 @@ fig = plt.figure(figsize=texfigure.figsize(
 plt.subplots_adjust(hspace=0.05,wspace=0.03)
 for i,f in enumerate(fits_files):
     m = Map(os.path.join(manager_data.data_dir, 'observations', f))
-    m = Map(m.data/m.meta['exptime'], m.meta)
+    m = Map(m.data/m.exposure_time.to(u.s).value, m.meta)
     m = m.submap(SkyCoord(Tx=-440*u.arcsec,Ty=-380*u.arcsec,frame=m.coordinate_frame),
                  SkyCoord(Tx=-185*u.arcsec,Ty=-125*u.arcsec,frame=m.coordinate_frame))
-    ax = fig.add_subplot(2,3,i+1,projection=m)
+    ax = fig.add_subplot(2, 3, i+1, projection=m)
     norm = ImageNormalize(vmin=0, vmax=m.data.max(), stretch=SqrtStretch())
     im = m.plot(axes=ax, title=False, annotate=False, norm=norm)
     ax.grid(alpha=0)
@@ -53,12 +55,11 @@ for i,f in enumerate(fits_files):
         lon.set_axislabel('Helioprojective Longitude')
         lat.set_axislabel('Helioprojective Latitude')
     xtext,ytext = m.world_to_pixel(SkyCoord(-420*u.arcsec, -150*u.arcsec, frame=m.coordinate_frame))
-    ax.text(
-        xtext.value, ytext.value,
-        f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
-        color='w',
-        fontsize=plt.rcParams['legend.fontsize']
-    )
+    ax.text(xtext.value,
+            ytext.value,
+            f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
+            color='w',
+            fontsize=plt.rcParams['legend.fontsize'])
     pos = ax.get_position().get_points()
     cax = fig.add_axes([pos[0,0], pos[1,1]+0.0075, pos[1,0]-pos[0,0], 0.015])
     cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
@@ -75,12 +76,14 @@ fig_intensity_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\col
 fig_intensity_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_data]|fig_intensity_maps|
+% spell-checker: enable %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   EM Slopes                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Emission Measure Slopes}\label{sec:em_slopes}
 
+% spell-checker: disable %
 \begin{pycode}[manager_em]
 manager_em = texfigure.Manager(
     pytex, './',
@@ -89,12 +92,26 @@ manager_em = texfigure.Manager(
     data_dir='data',
     number=2,
 )
-from formatting import heating_palette
+from utils import heating_palette, make_slope_map
 \end{pycode}
+% spell-checker: enable %
 
 After prepping, aligning, and cropping all 12 hours of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute two diagnostics of the heating: the emission measure slope and the time lag. First, we compute the emission measure distribution, \dem, in each pixel of the \AR{} from the time-averaged intensities from all six channels using the regularized inversion method of \citet{hannah_differential_2012}. As in \citetalias{barnes_understanding_2019}, we use temperature bins of width $\Delta\log T=0.1$ with the left and right edges at $10^{5.5}$ K and $10^{7.2}$ K, respectively. The uncertainties on the intensities are estimated using the \texttt{aia\_bp\_estimate\_error.pro} procedure provided by the AIA instrument team in the SolarSoftware package \citep[SSW,][]{freeland_data_1998}.  
 
+% spell-checker: disable %
 \begin{pycode}[manager_em]
+# Calculate slope maps
+slope_maps = {}
+for h in heating + ['observations']:
+    em_threshold = 1e27 * u.cm**(-5) if h == 'observations' else 1e24 * u.cm**(-5)
+    s, r2 = make_slope_map(
+        EMCube.restore(os.path.join(manager_em.data_dir, h, 'em_cube.h5')),
+        em_threshold=em_threshold,
+        temperature_lower_bound=8e5*u.K,
+    )
+    mask = ~np.logical_and(r2.data >= rsquared_threshold, np.isfinite(r2.data))
+    slope_maps[h] = Map(s.data, s.meta, mask=mask)
+
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
     scale=1 if is_onecolumn() else 2,
@@ -102,13 +119,11 @@ fig = plt.figure(figsize=texfigure.figsize(
     figure_width_context='columnwidth'
 ))
 plt.subplots_adjust(wspace=0.31)
+
 ### Map ###
-slope_map = Map(os.path.join(manager_em.data_dir, 'observations', 'em_slope.fits'))
-rsquared_map = Map(os.path.join(manager_em.data_dir, 'observations', 'em_slope_rsquared.fits'))
-slope_map = Map(slope_map.data, slope_map.meta, mask=rsquared_map.data < rsquared_threshold)
-slope_map = slope_map.submap(
-    SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=slope_map.coordinate_frame),
-    SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=slope_map.coordinate_frame))
+slope_map = slope_maps['observations'].submap(
+    SkyCoord(Tx=-410*u.arcsec,Ty=-325*u.arcsec,frame=slope_maps['observations'].coordinate_frame),
+    SkyCoord(Tx=-225*u.arcsec,Ty=-150*u.arcsec,frame=slope_maps['observations'].coordinate_frame))
 ax = fig.add_subplot(121, projection=slope_map)
 im = slope_map.plot(
     axes=ax,
@@ -134,18 +149,17 @@ cbar.ax.xaxis.set_ticks_position('top')
 cbar.set_ticks([2,3,4,5])
 cbar.ax.tick_params(width=0.5)
 cbar.outline.set_linewidth(0.5)
+
 ### Histograms ###
 ax = fig.add_subplot(122,)
 bins = np.arange(0, 8, 0.05)
 colors = ['k'] + heating_palette()
 # Plot Model EM Slopes
 for i,h in enumerate(['observations'] + heating):
-    m = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope.fits'))
-    m_rsquared = Map(os.path.join(manager_em.data_dir, f'{h}', 'em_slope_rsquared.fits'))
-    m = Map(m.data, m.meta, mask=m_rsquared.data < rsquared_threshold)
+    m = slope_maps[h]
     _,b,_ = ax.hist(
         m.data[~m.mask],
-        bins='fd',#bins,
+        bins='fd',
         histtype='step',
         density=True,
         color=colors[i],
@@ -174,6 +188,7 @@ fig_em_slopes.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwi
 fig_em_slopes.fig_str = fig_str
 \end{pycode}
 \py[manager_em]|fig_em_slopes|
+% spell-checker: enable %
 
 The left panel of \autoref{fig:em-slopes} shows the emission measure slope, $a$, as computed from the observed emission measure distribution in each pixel of \AR{} NOAA 1158. We calculate $a$ by fitting a first-order polynomial to the log-transformed emission measure and the temperature bin centers, $\log_{10}\textup{EM}\sim a\log_{10}T$. As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T \le T_{peak}$, where $T_\textup{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks. If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white. 
 
@@ -184,10 +199,11 @@ The right panel of \autoref{fig:em-slopes} shows the distribution of emission me
 We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR. In particular, the observed distribution of slopes overlaps quite strongly with both the intermediate- and high frequency-slopes. Compared to the simulated distributions of $a$ for low- and intermediate-frequency heating, the observed distribution is wide with a relatively flat top between $a\approx3$ and $a\approx4$. The observed distribution is not strongly peaked about a single value of $a$. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                   Timelags                                  %
+%                                   Time lags                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Time lags}\label{sec:timelags}
 
+% spell-checker: disable %
 \begin{pycode}[manager_timelags]
 manager_timelags = texfigure.Manager(
     pytex, './',
@@ -225,11 +241,13 @@ tfig.figure_width = r'0.75\columnwidth' if is_onecolumn() else r'\columnwidth'
 tfig.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|tfig|
+% spell-checker: enable %
 
 Next, we apply the time-lag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution. As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible ``hot-cool'' pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the time lag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}. We consider all possible offsets over the interval $\pm6$ hours. Following the convention of \citet{viall_evidence_2012}, the channel pairs are ordered such that the ``hot'' channel is listed first, meaning that \textit{a positive time lag indicates cooling plasma}. The response for each of the six EUV channels of AIA as a function of temperature is shown in \autoref{fig:aia-response}. The details of the cross-correlation and time lag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
 
 Note that \citet{viall_survey_2017} carried out the time lag analysis on this same \AR{}, NOAA 1158 (their region 2), as part of a survey of the catalogue of \AR{}s compiled by \citet{warren_systematic_2012}. We repeat this analysis here to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019}.
 
+% spell-checker: disable %
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
@@ -295,6 +313,7 @@ fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwid
 fig_timelags.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_timelags|
+% spell-checker: enable %
 
 \autoref{fig:timelags} shows the time-lag maps of \AR{} NOAA 1158 for all 15 channel pairs. Blacks, blues, and greens indicate negative time lags while reds, oranges, and yellows correspond to positive time lags. Olive green denotes zero time lag. The range of the colorbar is $\pm5000$ s. If the maximum cross-correlation in a given pixel is too small ($\max\mathcal{C}_{AB}<\py|correlation_threshold|$), the pixel is masked and colored white.
 
@@ -302,6 +321,7 @@ For the majority of the channel pairs, we find persistent positive time lags acr
 
 Additionally, the 94-335, 94-193, and 94-211 \AA{} pairs all show significant coherent negative time lags. Because the 94 \AA{} channel is bimodal in temperature (see \autoref{fig:aia-response}), a negative time lag is indicative of the plasma cooling first through the ``cool'' channel and then through the cooler component of the 94 \AA{} bandpass. The 94-171 and 94-131 pairs show only positive time lags because the 171 \AA{} and 131 \AA{} channels peak at cooler temperatures than the cool component of the 94 \AA{} channel. See \citet{viall_survey_2017} for a more detailed discussion of the time lag results from NOAA 1158. Note that unlike the predicted time lags in \citetalias{barnes_understanding_2019}, none of the pairs involving the 131 \AA{} channel, which is also bimodal in temperature, show any coherent negative time lags and, in particular, the inner cores of each 131 \AA{} pair show zero time lag.
 
+% spell-checker: disable %
 \begin{pycode}[manager_timelags]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
@@ -365,6 +385,7 @@ fig_correlations.figure_width = r'\columnwidth' if is_onecolumn() else r'2\colum
 fig_correlations.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_correlations|
+% spell-checker: enable %
 
 \autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}. In this figure, we do not mask any of the pixels. Though the value of the cross-correlation can range from $-1$ (perfectly anti-correlated) to $+1$ (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the lightcurves in each channel pair are in phase.
 

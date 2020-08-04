@@ -3,6 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Classification Model}\label{sec:compare}
 
+% spell-checker: disable %
 \begin{pycode}[manager_ml]
 manager_ml = texfigure.Manager(
     pytex, './',
@@ -18,11 +19,8 @@ X, Y, X_observation, bad_pixels = prep_data(
     heating,
     correlation_threshold=correlation_threshold,
     rsquared_threshold=rsquared_threshold,
-    scale_slope=False,
-    scale_timelag=False,
-    scale_correlation=False,
 )
-# Dummy metadata for creating maps
+# Dummy metadata for creating maps (they all have same WCS)
 meta = Map(os.path.join(manager_ml.data_dir, 'observations', 'timelag_171_131.fits')).meta
 
 # ML classification code here
@@ -73,8 +71,9 @@ frequency_maps['d'] = f_map
 probability_maps['d'] = p_maps
 test_error['d'] = err
 \end{pycode}
+% spell-checker: enable %
 
-Rather than manually comparing our observations and simulations using all of the aformentioned diagnostics, we systematically assess our observations of NOAA 1158 in terms of the heating frequency by training a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each observed pixel in terms of high-, intermediate-, or low-frequency heating as defined in \autoref{eq:heating_types}. Unlike more traditional statistical methods, this approach allows us to simultaneously consider an arbitrarily large number of features when deciding which frequency best fits the observation. In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, time lag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
+Rather than manually comparing our observations and simulations using all of the aforementioned diagnostics, we systematically assess our observations of NOAA 1158 in terms of the heating frequency by training a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019}. We then use our trained model to classify each observed pixel in terms of high-, intermediate-, or low-frequency heating as defined in \autoref{eq:heating_types}. Unlike more traditional statistical methods, this approach allows us to simultaneously consider an arbitrarily large number of features when deciding which frequency best fits the observation. In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, time lag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
 
 Following the explanation of \citet[chapter 8]{james_introduction_2013}, a decision tree recursively partitions the feature space of interest into a set of terminal nodes, or leaves, using a top-down, ``greedy'' approach called recursive binary splitting. At each node in the tree, a feature and an associated split point are chosen to maximize the number of observations of a single class in the resulting nodes. A common measure of the homogeneity or \textit{purity} of each node is the Gini index,
 \begin{equation}\label{eq:gini-index}
@@ -82,7 +81,7 @@ Following the explanation of \citet[chapter 8]{james_introduction_2013}, a decis
 \end{equation}
 where $k$ indexes the class, $m$ indexes the node, and $\hat{p}_{mk}$ is the proportion of the observations at node $m$ that belong to class $k$. Note that as the purity of $m$ increases (i.e. $\hat{p}_{mk}\to0,1$), $G_m$ decreases ($G_m\to0$). Alternative measures of node purity may also be used \citep[see section 9.2.3 of][]{hastie_elements_2009}. For every resulting terminal node in the tree, the assigned class is determined by the most commonly occurring class of every observation at that node.
 
-Decision trees are commonly used in classification problems because they are computationally efficient and relatively easy to interpret. Unlike many statistical learning techniques, decision trees do not assume any functional mapping between the inputs and outputs such that arbitrary, non-linear relatationships can be learned by the model. However, decision trees have two primary weaknesses: (1) they are known to have lower predictive accuracy than other more restrictive classification strategies and (2) they have high variance such that a single tree is not very robust to small changes in the training data \citep{james_introduction_2013}.
+Decision trees are commonly used in classification problems because they are computationally efficient and relatively easy to interpret. Unlike many statistical learning techniques, decision trees do not assume any functional mapping between the inputs and outputs such that arbitrary, non-linear relationships can be learned by the model. However, decision trees have two primary weaknesses: (1) they are known to have lower predictive accuracy than other more restrictive classification strategies and (2) they have high variance such that a single tree is not very robust to small changes in the training data \citep{james_introduction_2013}.
 
 While individual decision trees are ``weak learners'', combined they give accurate and robust predictions. Random forest classifiers, first developed by \citet{breiman_random_2001}, provide an ensemble statistical learning method for combining many noisy, decorrelated decision trees in order to improve prediction accuracy and robustness. As in the bootstrap-aggregation, or ``bagging'', technique developed by \citet{breiman_bagging_1996}, each tree in the random forest is trained on only a subset of the total training data in order to reduce the variance of the model. Additionally, at each node in each tree, a random subset of the total features are considered as candidates for splitting in order to decrease the correlation between trees. A typical rule-of-thumb is to consider only $\left\lfloor\sqrt{p}\right\rfloor$ features at each split, where $p$ is the total number of features. This further reduces the variance and prevents a single feature from dominating the decision in every tree. Once each tree in the forest has been built using the training data, an unlabeled observation is classified by traversing each tree in the forest and taking the majority vote of the class at the terminal node of each tree. See chapter 15 of \citet{hastie_elements_2009} for a detailed discussion of random forests for both classification and regression.
 
@@ -98,6 +97,7 @@ We do not apply any formal hyperparameter tuning or cross-validation procedure, 
 
 \subsection{Different Feature Combinations}\label{sec:feature-combos}
 
+% spell-checker: disable %
 \begin{pycode}[manager_ml]
 cases = ['a','b','c','d']
 tab = {
@@ -121,9 +121,11 @@ with io.StringIO() as f:
     table = f.getvalue()
 \end{pycode}
 \py[manager_ml]|table|
+% spell-checker: enable %
 
 We apply the train-test-predict procedure described above to all four cases listed in \autoref{tab:cases}. In case A, the random forest classifier is trained only on the emission measure slope, $a$, such that the $X$ and $X^\prime$ have dimensions $n\times1$ and $n^\prime\times1$, respectively. In case B, the classifier is trained on the time lags and maximum cross-correlations for all 15 channel pairs for a total of $p=30$ features while in case C, every feature (emission measure slope, 15 time lags, 15 maximum cross-correlations) is used such that $p=31$. We discuss case D in \autoref{sec:feature-importance}. The fourth column in \autoref{tab:cases} lists the misclassification error as evaluated on the test set, $X_\textup{test},Y_\textup{test}$ and the fifth, sixth, and seventh columns show the fraction of pixels classified as high-, intermediate-, and low-frequency.
 
+% spell-checker: disable %
 \begin{pycode}[manager_ml]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
@@ -180,9 +182,11 @@ fig_probability_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\c
 fig_probability_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_ml]|fig_probability_maps|
+% spell-checker: enable %
 
 After computing the predicted heating frequency for each $X^\prime$, the resulting classifications, $Y^\prime$, are mapped back to the corresponding observed pixel locations to create a map of the heating frequency. \autoref{fig:probability-maps} shows the probability that each pixel corresponds to a particular heating frequency. The rows denote the different feature subsets as given in \autoref{tab:cases} and the columns correspond to the different heating frequency classes. The class probability, as computed by the scikit-learn package, in each pixel is the mean class probability of all trees in the random forest classifier. The class probability for an individual tree is the proportion of all training samples at the terminal node that belong to that class.
 
+% spell-checker: disable %
 \begin{pycode}[manager_ml]
 fig = plt.figure(figsize=texfigure.figsize(
     pytex,
@@ -241,6 +245,7 @@ fig_frequency_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\col
 fig_frequency_maps.fig_str = fig_str
 \end{pycode}
 \py[manager_ml]|fig_frequency_maps|
+% spell-checker: enable %
 
 \autoref{fig:frequency-maps} shows the heating frequency, or class, as predicted by the random forest classifier in each pixel of the observed \AR{} for all four cases in \autoref{tab:cases}. The predicted class is the one which has the highest mean probability as computed over all trees in the random forest. Each pixel is colored blue, orange, or green depending on whether the class with the highest mean probability is high-, intermediate-, or low-frequency, respectively.
 
@@ -260,6 +265,7 @@ where $G_m$ is the Gini index as given by \autoref{eq:gini-index}, $M$ is the to
 
 Note that if $G_{m,R}=G_{m,L}=G_m$, $\Delta G_m=0$ because the split at node $m$ did not improve the discrimination between classes compared to the split at the previous node. However, if the purity of the left or right node increases such that $G_{m,R}$ or $G_{m,L}$ decreases relative to $G_m$, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
 
+% spell-checker: disable %
 \begin{pycode}[manager_ml]
 all_labels = np.array([r'$\tau_{{{},{}}}$'.format(*cp) for cp in channel_pairs] +
                       [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + [r'$a$'])
@@ -275,6 +281,7 @@ with io.StringIO() as f:
     table = f.getvalue()
 \end{pycode}
 \py[manager_ml]|table|
+% spell-checker: enable %
 
 \autoref{tab:importance} shows the ten most important features from case C as determined by \autoref{eq:gini_gain} summed over all nodes in each tree and averaged over all trees. The importance in the second column is normalized such that the most important feature is equal to 1. In case D as listed in the last row of \autoref{tab:cases}, only these ten features are used to train the random forest classifier and classify each observed pixel. The probability of each heating frequency for case D is shown in the last row of \autoref{fig:probability-maps} and the map of the most likely heating frequency in each pixel is shown in the bottom-right panel of \autoref{fig:frequency-maps}. We find that the probability maps in the last row of \autoref{fig:probability-maps} and the frequency map in the bottom right panel of \autoref{fig:frequency-maps} reveal approximately the same patterns of heating frequency across the \AR{} as the maps for case C in which all 31 features were included. Additionally, using less than $1/3$ of the total number of features, we achieve a misclassification error of \py[manager_ml]|f"{tab['Error'][3]:.2f}"|, comparable to case C.
 

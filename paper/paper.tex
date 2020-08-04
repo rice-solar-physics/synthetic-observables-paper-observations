@@ -1,3 +1,4 @@
+% spell-checker: disable %
 %% Use AASTeX class, version 6.1
 %% Allow for additional class options such as,
 %%  twocolumn   : two text columns, 10 point font, single spaced article.
@@ -20,7 +21,7 @@
 %%                 affiliation information after each name. Creates a much
 %%                 long author list but may be desirable for short author papers
 
-\documentclass[modern,linenumbers]{aastex62}
+\documentclass[modern,linenumbers,trackchanges]{aastex63}
 %% Include packages
 \usepackage{amsmath}
 \usepackage{calc}
@@ -45,12 +46,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Understanding Heating in Active Region Cores through Machine Learning II. Classifying Observations}
 \author[0000-0001-9642-6089]{W. T. Barnes}
+\affiliation{Department of Physics \& Astronomy, Rice University, Houston, TX 77005-1827}
+\affiliation{Lockheed Martin Solar \& Astrophysics Laboratory, Palo Alto, CA 94304}
+\affiliation{Bay Area Environmental Research Institute, Moffett Field, CA 94952}
 \author[0000-0002-3300-6041]{S. J. Bradshaw}
 \affiliation{Department of Physics \& Astronomy, Rice University, Houston, TX 77005-1827}
 \author[0000-0003-1692-1704]{N. M. Viall}
 \affiliation{NASA Goddard Space Flight Center, Greenbelt, MD 20771}
 \correspondingauthor{W. T. Barnes}
-\email{will.t.barnes@rice.edu}
+\email{barnes@lmsal.com}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Abstract                                  %
@@ -86,8 +90,7 @@ This research makes use of SunPy, an open-source and free community-developed so
 \software{
     Astropy\citep{the_astropy_collaboration_astropy_2018},
 	Dask\citep{rocklin_dask_2015},
-	demreg\citep[\href{https://github.com/ianan/demreg}{github.com/ianan/demreg}]{hannah_differential_2012},
-	drms\authorcomment1{[REF.]},
+	drms\authorcomment1{CITE JOSS PAPER HERE},
     Matplotlib\citep{hunter_matplotlib_2007},
 	NumPy\citep{oliphant_guide_2006},
 	PythonTeX\citep{poore_pythontex_2015},
@@ -103,5 +106,8 @@ This research makes use of SunPy, an open-source and free community-developed so
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bibliographystyle{aasjournal.bst}
 \bibliography{references.bib,software.bib}
+
+\listofchanges
+
 \end{document}
     
