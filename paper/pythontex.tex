@@ -1,7 +1,8 @@
+% spell-checker: disable %
 % PythonTeX Configuration
 \usepackage[depythontex]{pythontex}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-% PythonTeX Bug Fix % % % % % % % % % % % % % % % % % % % % % % % %
+% Begin PythonTeX Bug Fix % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % pytexbug fix for context in customcode.
 \makeatletter
@@ -26,6 +27,8 @@
 }%
 \makeatother
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% End PythonTeX Bug Fix % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 % TeXFigure setup
 \setpythontexcontext{textwidth=\the\textwidth,columnwidth=\the\columnwidth,figurewidth=\the\columnwidth}
@@ -55,9 +58,10 @@ from astropy.coordinates import SkyCoord
 from astropy.visualization import ImageNormalize, AsinhStretch, SqrtStretch
 import synthesizAR
 from synthesizAR.instruments import InstrumentSDOAIA
+from synthesizAR.analysis.dem import EMCube
 
 # Color palettes and color maps
-from formatting import heating_palette, qualitative_palette
+from utils import heating_palette, qualitative_palette
 from colormaps import *
 
 # Set some plot styling here
