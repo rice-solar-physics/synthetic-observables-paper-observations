@@ -1,12 +1,10 @@
 """
 Basic utils used throughout paper
 """
-import warnings
-
 import seaborn
 import numpy as np
 import astropy.units as u
-from sunpy.map import Map
+from sunpy.map import GenericMap
 
 
 # Color palette for heating functions
@@ -25,11 +23,14 @@ def make_slope_map(emcube, temperature_lower_bound=None, em_threshold=None):
 
     The fit is computed between `temperature_lower_bound`
     and the temeperature at which the EM is maximum.
+    If the total emission (over all temperature bins) is less than
+    `em_threshold`, no fit is calculated for that pixel.
 
     Parameters
     ----------
     emcube: `EMCube`
         Emission measure map as a function space and temperature
+    temperature_lower_bound: `~astropy.units.Quantity`
     em_threshold: `~astropy.units.Quantity`, optional
         If the total EM in a pixel is below this, no slope is calculated
 
@@ -43,33 +44,37 @@ def make_slope_map(emcube, temperature_lower_bound=None, em_threshold=None):
     i_valid = np.where(
         u.Quantity(emcube.total_emission.data, emcube[0].meta['bunit']) > em_threshold)
     em_valid = np.log10(emcube.as_array()[i_valid])
-    em_valid[np.logical_or(np.isinf(em_valid), np.isnan(em_valid))] = 0.0
+    # Set any NaNs or Infs to zero. These will be weighted as zero during the fitting
+    em_valid[~np.isfinite(em_valid)] = 0.0
     i_peak = em_valid.argmax(axis=1)
     log_temperature_bin_centers = np.log10(emcube.temperature_bin_centers.value)
     if temperature_lower_bound is None:
         i_lower = 0
     else:
+        # Find closest bin to selected lower bound on temperature
         i_lower = np.fabs(emcube.temperature_bin_centers - temperature_lower_bound).argmin()
     slopes, rsquared = [], []
     for emv, ip in zip(em_valid, i_peak):
         t_fit = log_temperature_bin_centers[i_lower:ip]
-        if t_fit.size < 3:
-            warnings.warn('Fit should be over 3 or more bins in temperature.')
-        if t_fit.size == 0:
+        em_fit = emv[i_lower:ip]
+        # Do not give any weight to bins with no emission. This includes the NaN/Inf
+        # bins we set to zero earlier.
+        w = np.where(em_fit > 0, 1, 0)
+        # Ignore fits on two or less points or where all but two or less of the
+        # weights are zero
+        if t_fit.size < 3 or np.where(w == 1)[0].size < 3:
             slopes.append(np.nan)
             rsquared.append(0.)
             continue
-        em_fit = emv[i_lower:ip]
-        w = np.where(em_fit > 0, 1, 0)
         coeff, rss, _, _, _ = np.polyfit(t_fit, em_fit, 1, full=True, w=w)
-        rss = 1 if rss.size == 0 else rss[0]
+        # Calculate the zeroth-order fit in order to find the correlaton
         _, rss_flat, _, _, _ = np.polyfit(t_fit, em_fit, 0, full=True, w=w)
-        rss_flat = 1 if rss_flat.size == 0 else rss_flat[0]
         slopes.append(coeff[0])
-        rsquared.append(1-rss/rss_flat)
+        rsquared.append(1-rss[0]/rss_flat[0])
+
     slopes_data = np.zeros(emcube.total_emission.data.shape)
     slopes_data[i_valid] = slopes
     rsquared_data = np.zeros(emcube.total_emission.data.shape)
     rsquared_data[i_valid] = rsquared
 
-    return Map(slopes_data, emcube[0].meta,), Map(rsquared_data, emcube[0].meta)
+    return GenericMap(slopes_data, emcube[0].meta,), GenericMap(rsquared_data, emcube[0].meta)
