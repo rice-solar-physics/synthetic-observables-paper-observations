@@ -21,13 +21,13 @@
 %%                 affiliation information after each name. Creates a much
 %%                 long author list but may be desirable for short author papers
 
-\documentclass[modern,linenumbers,trackchanges]{aastex63}
+\documentclass[modern,linenumbers,longauthor]{aastex63}
 %% Include packages
 \usepackage{amsmath}
 \usepackage{calc}
 \include{pythontex}
 %% Custom commands
-\DeclareMathOperator*{\argmax}{argmax} % in your preamble
+\DeclareMathOperator*{\argmax}{argmax}
 \newcommand{\AR}{active region}
 \newcommand{\dem}{$\mathrm{EM}(T)$}
 \newcommand{\twait}[1][]{t_{\textup{wait}#1}}
@@ -36,6 +36,7 @@
 \renewcommand{\subsubsectionautorefname}{Section}
 %% Paper Aliases
 \defcitealias{barnes_understanding_2019}{Paper I}
+\defcitealias{viall_survey_2017}{VK17}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Body                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,23 +47,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Understanding Heating in Active Region Cores through Machine Learning II. Classifying Observations}
 \author[0000-0001-9642-6089]{W. T. Barnes}
+\affiliation{National Research Council Postdoctoral Research Associate residing at the Naval Research Laboratory, Washington, D.C. 20375}
 \affiliation{Department of Physics \& Astronomy, Rice University, Houston, TX 77005-1827}
-\affiliation{Lockheed Martin Solar \& Astrophysics Laboratory, Palo Alto, CA 94304}
-\affiliation{Bay Area Environmental Research Institute, Moffett Field, CA 94952}
 \author[0000-0002-3300-6041]{S. J. Bradshaw}
 \affiliation{Department of Physics \& Astronomy, Rice University, Houston, TX 77005-1827}
 \author[0000-0003-1692-1704]{N. M. Viall}
 \affiliation{NASA Goddard Space Flight Center, Greenbelt, MD 20771}
 \correspondingauthor{W. T. Barnes}
-\email{barnes@lmsal.com}
+\email{will.barnes.ctr@nrl.navy.mil}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Abstract                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
+Constraining the frequency of energy deposition in magnetically-closed \AR{} cores requires sophisticated hydrodynamic simulations of the coronal plasma and detailed forward modeling of the optically-thin line-of-sight integrated emission.
+However, understanding which set of model inputs best matches a set of observations is complicated by the need for any proposed heating model to simultaneously satisfy multiple observable constraints.
+In this paper, we train a random forest classification model on a set of forward-modeled observable quantities, namely the emission measure slope, the peak temperature of the emission measure distribution, and the time lag and maximum cross-correlation between multiple pairs of AIA channel pairs.
+We then use our trained model to classify the heating frequency in every pixel of \AR{} NOAA 1158 using the observed emission measure slopes, peak temperatures, time lags, and maximum cross-correlations and are able to map the heating frequency across the entire active region.
+We find that high-frequency heating dominates in the inner core of the \AR{} while intermediate frequency dominates in the strands closer to the periphery of the \AR{}.
+Additionally, we assess the importance of each feature in our trained classification model and find that the emission measure slope is the dominant feature in deciding which heating frequency a given pixel is most consistent with.
+The technique presented here offers a very promising and widely applicable method for assessing observations in terms of detailed forward models given an arbitrary number of observable constraints.
 \end{abstract}
 %% Keywords
-\keywords{Sun:corona, Sun:UV radiation, methods:statistical, methods:data analysis}
+\keywords{Active solar corona (1988), Astronomy data analysis (1858), Solar extreme ultraviolet emission (1493), Random Forests (1935)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Sections                                  %
@@ -77,7 +84,10 @@
 %                                   Acknowledgment                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \acknowledgments
-This research makes use of SunPy, an open-source and free community-developed solar data analysis package written in Python \citep{sunpy_community_sunpypython_2015}. SJB and WTB were supported by the NSF through CAREER award AGS-1450230. The work of NMV was supported by the NASA Supporting Research program.
+This research makes use of SunPy, an open-source and free community-developed solar data analysis package written in Python \citep{sunpy_community_sunpypython_2015}. 
+SJB and WTB were supported by the NSF through CAREER award AGS-1450230.
+The work of NMV was supported by the NASA Supporting Research program.
+The complete source of this paper, including the data, code, and instructions for training the classification model, can be found at \href{https://github.com/rice-solar-physics/synthetic-observables-paper-observations}{github.com/rice-solar-physics/synthetic-observables-paper-observations}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Facilities                                %
@@ -88,17 +98,17 @@ This research makes use of SunPy, an open-source and free community-developed so
 %                                   Software                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \software{
-    Astropy\citep{the_astropy_collaboration_astropy_2018},
-	Dask\citep{rocklin_dask_2015},
-	drms\authorcomment1{CITE JOSS PAPER HERE},
-    Matplotlib\citep{hunter_matplotlib_2007},
-	NumPy\citep{oliphant_guide_2006},
-	PythonTeX\citep{poore_pythontex_2015},
-    scikit-learn\citep[v0.20.1][]{pedregosa_scikit-learn_2011},
-	seaborn\citep{michael_waskom_2018_1313201},
-	scipy\citep{jones_scipy_2001},
-	SolarSoftware\citep{freeland_data_1998},
-    SunPy\citep{stuart_mumford_2018_2155946},
+    astropy \citep{the_astropy_collaboration_astropy_2018},
+	dask \citep{rocklin_dask_2015},
+	drms \citep{glogowski_drms_2019},
+    matplotlib \citep{hunter_matplotlib_2007},
+	numpy \citep{oliphant_guide_2006},
+	PythonTeX \citep{poore_pythontex_2015},
+    scikit-learn \citep[v0.20.1][]{pedregosa_scikit-learn_2011},
+	seaborn \citep{michael_waskom_2018_1313201},
+	scipy \citep{jones_scipy_2001},
+	SolarSoftware \citep{freeland_data_1998},
+    sunpy \citep[v0.9.5][]{stuart_mumford_2018_2155946},
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

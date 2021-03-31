@@ -67,6 +67,7 @@ from colormaps import *
 # Set some plot styling here
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = 'Computer Modern'
+plt.rcParams['font.sans-serif'] = 'Computer Modern Sans serif'
 plt.rcParams['text.usetex'] = True
 plt.rcParams['text.latex.preamble'] = [
     r'\newcommand\arcsec{\mbox{$^{\prime\prime}$}}',
@@ -95,17 +96,17 @@ heating = [
 ]
 channel_pairs = [
     (94,335),
-    (94,171),
-    (94,193),
-    (94,131),
     (94,211),
-    (335,131),
-    (335,193),
+    (94,193),
+    (94,171),
+    (94,131),
     (335,211),
+    (335,193),
     (335,171),
-    (211,131),
-    (211,171),
+    (335,131),
     (211,193),
+    (211,171),
+    (211,131),
     (193,171),
     (193,131),
     (171,131),

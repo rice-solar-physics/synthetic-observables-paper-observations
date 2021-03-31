@@ -1,6 +1,7 @@
 """
 Apply random forest classifier to time lag, cross-correlation and slope data
 """
+import copy
 import os
 
 import numpy as np
@@ -53,10 +54,14 @@ def prep_data(top_dir, channel_pairs, heating,
     # the r^2. If the r^2 value is below the given threshold or
     # it is infinite or NaN, mask that pixel
     slope_maps = {}
+    tpeak_maps = {}
     for h in heating + ['observations']:
         em_threshold = 1e27 * u.cm**(-5) if h == 'observations' else 1e24 * u.cm**(-5)
+        em_cube = EMCube.restore(os.path.join(top_dir, h, 'em_cube.h5'))
+        tpeak_maps[h] = Map(em_cube.temperature_bin_centers[np.argmax(em_cube.as_array(), axis=2)],
+                            copy.deepcopy(em_cube.all_meta()[0]))
         s, r2 = make_slope_map(
-            EMCube.restore(os.path.join(top_dir, h, 'em_cube.h5')),
+            em_cube,
             em_threshold=em_threshold,
             temperature_lower_bound=8e5*u.K,
         )
@@ -92,7 +97,9 @@ def prep_data(top_dir, channel_pairs, heating,
     ], axis=1)
     X_slope = np.hstack([slope_maps[h].data[np.where(~bad_pixels)].flatten() for h in heating])
     X_slope = X_slope[:, np.newaxis]
-    X = np.hstack((X_timelag, X_correlation, X_slope))
+    X_tpeak = np.hstack([tpeak_maps[h].data[np.where(~bad_pixels)].flatten() for h in heating])
+    X_tpeak = X_tpeak[:, np.newaxis]
+    X = np.hstack((X_timelag, X_correlation, X_slope, X_tpeak))
 
     # Load heating frequency labels into something the same shape as our data
     Y = np.hstack([np.where(~bad_pixels)[0].shape[0]*[h] for h in heating])
@@ -121,7 +128,9 @@ def prep_data(top_dir, channel_pairs, heating,
     ], axis=1)
     X_slope = slope_maps['observations'].data[np.where(~bad_pixels)].flatten()
     X_slope = X_slope[:, np.newaxis]
-    X_observation = np.hstack((X_timelag, X_correlation, X_slope))
+    X_tpeak = tpeak_maps['observations'].data[np.where(~bad_pixels)].flatten()
+    X_tpeak = X_tpeak[:, np.newaxis]
+    X_observation = np.hstack((X_timelag, X_correlation, X_slope, X_tpeak))
 
     return X, Y, X_observation, bad_pixels
 
