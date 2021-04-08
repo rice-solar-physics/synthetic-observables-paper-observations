@@ -77,7 +77,7 @@ test_error['d'] = err
 Rather than manually comparing our observations and simulations using all of the aforementioned diagnostics, we systematically assess our observations of NOAA 1158 in terms of the heating frequency by training a random forest classifier comprised of many decision tress on our predicted observables from \citetalias{barnes_understanding_2019}.
 We then use our trained model to classify each observed pixel in terms of high-, intermediate-, or low-frequency heating as defined in \autoref{eq:heating_types}.
 Unlike more traditional statistical methods, this approach allows us to simultaneously consider an arbitrarily large number of features when deciding which frequency best fits the observation.
-In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the peak temperature, emission measure slope, time lag, and cross-correlation are the \textit{features}, and the pixels are the \textit{samples}.
+In the parlance of statistical learning, the heating frequency (low, intermediate, or high) is the \textit{class}, the emission measure slope, peak temperature, time lags, and cross-correlations are the \textit{features}, and the pixels are the \textit{samples}.
 
 Following the explanation of \citet[chapter 8]{james_introduction_2013}, a decision tree recursively partitions the feature space of interest into a set of terminal nodes, or leaves, using a top-down, ``greedy'' approach called recursive binary splitting.
 At each node in the tree, a feature and an associated split point are chosen to maximize the number of observations of a single class in the resulting nodes.
@@ -95,7 +95,7 @@ Decision trees are commonly used in classification problems because they are com
 Unlike many statistical learning techniques, decision trees do not assume any functional mapping between the inputs and outputs such that arbitrary, non-linear relationships can be learned by the model.
 However, decision trees have two primary weaknesses: (1) they are known to have lower predictive accuracy than other more restrictive classification strategies and (2) they have high variance such that a single tree is not very robust to small changes in the training data \citep{james_introduction_2013}.
 
-While individual decision trees are ``weak learners'', combined they give accurate and robust predictions.
+While individual decision trees are ``weak learners,'' combined they give accurate and robust predictions.
 Random forest classifiers, first developed by \citet{breiman_random_2001}, provide an ensemble statistical learning method for combining many noisy, decorrelated decision trees in order to improve prediction accuracy and robustness.
 As in the bootstrap-aggregation, or ``bagging'', technique developed by \citet{breiman_bagging_1996}, each tree in the random forest is trained on only a subset of the total training data in order to reduce the variance of the model.
 Additionally, at each node in each tree, a random subset of the total features are considered as candidates for splitting in order to decrease the correlation between trees.
@@ -115,18 +115,21 @@ They found that, given a set of parameters derived from the peak X-ray flux as o
 
 To build our classification model, we use the random forest classifier as implemented in the scikit-learn package for machine learning in Python \citep{pedregosa_scikit-learn_2011}.
 Using the predicted peak temperatures, emission measure slopes, time lags, and maximum cross-correlations from \citetalias{barnes_understanding_2019}, we train a single random forest classifier composed of \py[manager_ml]|rf_options['n_estimators']| trees each with a maximum depth of \py[manager_ml]|rf_options['max_depth']|.
-At each node, $\left\lfloor\sqrt{31}\right\rfloor=\py|f'{int(np.sqrt(32)):.0f}'|$ possible split candidates are randomly selected from the $15\,\textup{time lags} + 15\,\textup{cross-correlations} + 1\,\textup{peak temperature} + 1\,\textup{emission measure slope}=32$ total features.
+At each node, $\left\lfloor\sqrt{\py[manager_ml]|f'{int(X.shape[1]):.0f}'|}\right\rfloor=\py[manager_ml]|f'{int(np.sqrt(X.shape[1])):.0f}'|$ possible split candidates are randomly selected from the $15\,\textup{time lags} + 15\,\textup{cross-correlations} + 1\,\textup{peak temperature} + 1\,\textup{emission measure slope}=32$ total features.
 We note that all of these features are likely to be correlated with one another to some extent.
+In \autoref{sec:feature-combos}, we examine how training our model on different combinations of these features impacts our predictions.
 
-Before training the model, we flatten the predicted peak temperature, emission measure slope, time lag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency heating cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images.
+Before training the model, we flatten the predicted emission measure slope, peak temperature, time lag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency heating cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images.
 As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation.
-If a pixel is masked in one frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points.
-\added{This ensures we do not have an imabalance in the number points in each class when training our model.}
+If a pixel is masked in any frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points.
+\added{This ensures we do not have an imbalance in the number of points in each class when training our model.}
+
 We stack each flattened array column-wise in features and row-wise in heating frequency such that all of the simulated data are encapsulated in a single data matrix $X$ of dimension $n\times p$.
 $p=32$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency.
 \added{In total, we mask \py[manager_ml]|f'{100 * (1 - X.shape[0]/(3 * 500 * 500)):.2f}'|$\%$ of the total pixels from all three heating frequency cases for our simulated features used for training our classification models.}
 The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$.
-We apply a $2/3-1/3$ test-train split to $X$ and $Y$ such that approximately $1/3$ of the samples are reserved for model evaluation to ensure that our model has not overfit the data.
+
+We apply a $2/3-1/3$ train-test split to $X$ and $Y$ such that approximately $1/3$ of the samples are reserved for model evaluation to ensure that our model has not overfit the data.
 This produces four separate matrices: $X_\textup{train},Y_\textup{train},X_\textup{test},Y_\textup{test}$.
 The data are not centered to a mean of 0 or scaled to unit standard deviation.
 By transforming the data in this manner, we are treating each pixel in the image as an independent sample with $p$ associated features per sample.
@@ -171,7 +174,7 @@ with io.StringIO() as f:
 % spell-checker: enable %
 
 We apply the train-test-predict procedure described above to all four cases listed in \autoref{tab:cases}.
-In case A, the random forest classifier is trained only on the features related to the emission measure distribution, the emission measure slope, $a$, and the peak temperature, $T_peak$, such that the $X$ and $X^\prime$ have dimensions $n\times2$ and $n^\prime\times2$, respectively.
+In case A, the random forest classifier is trained only on the features related to the emission measure distribution, the emission measure slope, $a$, and the peak temperature, $T_{peak}$, such that the $X$ and $X^\prime$ have dimensions $n\times2$ and $n^\prime\times2$, respectively.
 In case B, the classifier is trained on the time lags and maximum cross-correlations for all 15 channel pairs for a total of $p=30$ features while in case C, every feature (emission measure slope, peak temperature, 15 time lags, 15 maximum cross-correlations) is used such that $p=32$.
 We discuss case D in \autoref{sec:feature-importance}.
 The fourth column in \autoref{tab:cases} lists the misclassification error as evaluated on the test set, $X_\textup{test},Y_\textup{test}$ and the fifth, sixth, and seventh columns show the fraction of pixels classified as high-, intermediate-, and low-frequency.
@@ -235,7 +238,7 @@ fig_probability_maps.fig_str = fig_str
 \py[manager_ml]|fig_probability_maps|
 % spell-checker: enable %
 
-After computing the predicted heating frequency for each $X^\prime$, the resulting classifications, $Y^\prime$, are mapped back to the corresponding observed pixel locations to create a map of the heating frequency.
+After computing the predicted heating frequency for $X^\prime$, the resulting classifications, $Y^\prime$, are mapped back to the corresponding observed pixel locations to create a map of the heating frequency.
 \autoref{fig:probability-maps} shows the probability that each pixel corresponds to a particular heating frequency.
 The rows denote the different feature subsets as given in \autoref{tab:cases} and the columns correspond to the different heating frequency classes.
 The class probability, as computed by the scikit-learn package, in each pixel is the mean class probability of all trees in the random forest classifier.
@@ -294,7 +297,7 @@ cbar.ax.tick_params(axis='x', which='both', length=0)
 cbar.outline.set_linewidth(0.5)
 # Save
 fig_frequency_maps = manager_ml.save_figure('frequency-maps')
-fig_frequency_maps.caption = r'Predicted heating frequency classification in each pixel of NOAA 1158 for each of the cases in \autoref{tab:cases}. The classification is determined by which heating frequency class has the highest mean probability over all trees in the random forest. Each pixel is colored blue, orange, or green depending on whether the most likely heating frequency is high, intermediate, or low, respectively. If any of the 31 features is masked in a particular pixel, the pixel is colored white.'
+fig_frequency_maps.caption = r'Predicted heating frequency classification in each pixel of NOAA 1158 for each of the cases in \autoref{tab:cases}. The classification is determined by which heating frequency class has the highest mean probability over all trees in the random forest. Each pixel is colored blue, orange, or green depending on whether the most likely heating frequency is high, intermediate, or low, respectively. If any of the 32 features is masked in a particular pixel, the pixel is colored white.'
 fig_frequency_maps.figure_env_name = 'figure*'
 fig_frequency_maps.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_frequency_maps.fig_str = fig_str
@@ -313,11 +316,11 @@ The frequency classification map for case A is as expected given the observed em
 From the fourth column of \autoref{tab:cases}, we find that adding more features to the classifier significantly improves the accuracy as computed on the test data set.
 However, comparing frequency maps in cases A ($p=2$) and C ($p=32$), we find that the general pattern of heating frequency across the \AR{} is similar despite the large differences between the misclassification error in case A (\py[manager_ml]|f"{tab['Error'][0]:.2f}"|) and case C (\py[manager_ml]|f"{tab['Error'][2]:.2f}"|).
 Additionally, looking at the seventh column of \autoref{tab:cases} and the panels in the third column of \autoref{fig:probability-maps}, we find that adding the time lag and maximum cross-correlation features significantly decreases the number of pixels classified as low frequency.
-Training the classifier on only the emission measure slope versus all of the features has a comparatively small impact on the fraction of pixels classified as intermediate frequency.
+\added{Overall, we find that training the classifier on all of the features (C) versus only the emission measure slope and peak temperature (A) increases the number of pixels classified as high-frequency and decreases the number of intermediate- and low-frequency pixels, with the reduction in the low-frequency pixels being the most prominent.}
 
 Interestingly, we find that when we use relatively shallow trees to build the random forest (e.g. a maximum depth of $<10$), the misclassification error on the test data set in case B becomes larger than that of case A, despite $p_\textup{B}>p_\textup{A}$.
 If very complex trees (maximum depth $>100$) are used in case A, the model overfits the data and the resulting classification becomes very noisy. 
-However, in case B (and C), increasing the maximum depth continually decreases the test error, indicating that the model is not overfitting the data. 
+However, in case B (and C), increasing the maximum depth continually decreases the test error, suggesting that the model is not overfitting the data. 
 This seems to suggest that the relationship between the heating frequency and the time lag, as well as the maximum cross-correlation, is much more complex than that of the relationship between the heating frequency and the emission measure slope and the peak temperature.
 
 \subsection{Feature Importance}\label{sec:feature-importance}
@@ -331,24 +334,33 @@ where $G_m$ is the Gini index as given by \autoref{eq:gini-index}, $M$ is the to
 The importance of a particular feature in the random forest classification is then determined by summing \autoref{eq:gini_gain} over all nodes which split on that feature for every tree and averaging over all trees \citep{breiman_classification_1984}.
 
 Note that if $G_{m,R}=G_{m,L}=G_m$, $\Delta G_m=0$ because the split at node $m$ did not improve the discrimination between classes compared to the split at the previous node.
-However, if the purity of the left or right node increases such that $G_{m,R}$ or $G_{m,L}$ decreases relative to $G_m$, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
+However, if the purity of the left or right node increases such that $G_{m,R}$ or $G_{m,L}$ decrease relative to $G_m$, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
+\added{The larger the value of $\Delta G_m$, when summed over all relevant splits and averaged over all trees, the important that particular feature is.}
 
 % spell-checker: disable %
 \begin{pycode}[manager_ml]
 # Note: the order here MUST be the same as the columns of X!
-all_labels = np.array([r'$\tau_{{{},{}}}$'.format(*cp) for cp in channel_pairs] +
-                      [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + 
-                      [r'$a$'] + 
-                      [r'$T_{peak}$'])
+all_labels = np.array(
+    [r'$\tau_{{{},{}}}$'.format(*cp) for cp in channel_pairs] +
+    [r'$\mathcal{{C}}_{{{},{}}}$'.format(*cp) for cp in channel_pairs] + 
+    [r'$a$'] + 
+    [r'$T_{peak}$']
+)
 tab2 = {
     'Feature': all_labels[i_important[:10]],
     'Importance': importances[i_important[:10]]/importances[i_important[0]],
     r'$\sigma$': std[i_important[:10]],
 }
 caption = r'Ten most important features as determined by the random forest classifier in case C. The second column shows the variable importance as computed by \autoref{eq:gini_gain} and the third column, $\sigma$, is the standard deviation of the feature importance over all trees in the random forest. The second column is normalized such that the most important feature is equal to 1.\label{tab:importance}'
-formats = { 'Importance': '%.4f', r'$\sigma$': '%.4f' }
 with io.StringIO() as f:
-    ascii.write(tab2, format='aastex', caption=caption, output=f, formats=formats, latexdict={'preamble': r'\tablewidth{\columnwidth}'})
+    ascii.write(
+        tab2,
+        format='aastex',
+        caption=caption,
+        output=f,
+        formats={'Importance': '%.4f', r'$\sigma$': '%.4f' },
+        latexdict={'preamble': r'\tablewidth{\columnwidth}'}
+    )
     table = f.getvalue()
 \end{pycode}
 \py[manager_ml]|table|
@@ -359,11 +371,11 @@ The importance in the second column is normalized such that the most important f
 In case D as listed in the last row of \autoref{tab:cases}, only these ten features are used to train the random forest classifier and classify each observed pixel.
 The probability of each heating frequency for case D is shown in the last row of \autoref{fig:probability-maps} and the map of the most likely heating frequency in each pixel is shown in the bottom-right panel of \autoref{fig:frequency-maps}.
 We find that the probability maps in the last row of \autoref{fig:probability-maps} and the frequency map in the bottom right panel of \autoref{fig:frequency-maps} reveal approximately the same patterns of heating frequency across the \AR{} as the maps for case C in which all 32 features were included.
-Additionally, using less than $1/3$ of the total number of features, we achieve a misclassification error of \py[manager_ml]|f"{tab['Error'][3]:.2f}"|, comparable to case C.
+Additionally, using less than $1/3$ of the total number of features, we achieve a misclassification error of \py[manager_ml]|f"{tab['Error'][3]:.2f}"|, comparable to, though higher than, case C.
 
 According to \autoref{tab:importance}, the emission measure slope, $a$, has the most discriminating power in the random forest classifier.
 In particular, $a$ is more important than the second most important feature by over a factor of 2 and more important than the most important time lag feature by nearly an order of magnitude.
-Interestingly, we find that $T_{peak}$ ranks fifth in feature importance though it is still less important by nearly a factor of 10 compared to the emission measure slope.
+Interestingly, we find that $T_{peak}$ ranks fifth in feature importance though it is still less important than $a$ by nearly an order of magnitude.
 
 While useful, the feature importance in random forest classifiers should be interpreted cautiously, especially in cases where the features are correlated.
 The time lags, as well as the maximum cross-correlations, in all channel pairs are very strongly correlated.
