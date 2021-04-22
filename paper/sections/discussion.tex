@@ -7,7 +7,7 @@ As evidenced in \autoref{fig:probability-maps} and \autoref{fig:frequency-maps},
 Comparing the heating frequency maps in \autoref{fig:frequency-maps} for the different cases in \autoref{tab:cases}, this high-frequency classification seems largely due to the steep observed emission measure slopes in the center of the \AR{} as seen in \autoref{fig:em-slopes}.
 This result is consistent with X-ray observations of hot, steadier emission \citep{warren_evidence_2010,warren_constraints_2011,winebarger_using_2011} as well as the result of \citet{del_zanna_evolution_2015} who found high values of the emission measure slope in the center of NOAA 11193.
 
-Comparing case C in \autoref{fig:frequency-maps} with the observed magnetogram of NOAA 1158 shown in Figure 1 of \citetalias{barnes_understanding_2019}, we find that the areas of strongest magnetic field are spatially coincident with most of the pixels classified as high-frequency.
+Comparing case C in \autoref{fig:frequency-maps} with the observed magnetogram of NOAA 1158 shown in Figure 1 of \citetalias{barnes_understanding_2019}, we find that areas of stronger magnetic field are spatially coincident with most of the pixels classified as high-frequency.
 This suggests that those strands whose footpoints are rooted in areas of strong magnetic field strength are heated more frequently.
 We will explore the relationship between the heating frequency and the underlying magnetic field strength in a future paper.
 
@@ -32,16 +32,18 @@ After the emission measure slope, $a$, the next three most important features in
 These three channels, 211 \AA{}, 193 \AA{}, and 171 \AA{}, peak sequentially in temperature at 1.8, 1.6, and 0.8 MK, respectively (see \autoref{fig:aia-response}), suggesting that the plasma dynamics in this temperature range, which are dominated by radiative cooling and draining \citep[e.g.][]{bradshaw_cooling_2005,bradshaw_cooling_2010,bradshaw_new_2010}, are coupled to, and indicative of, the frequency at which energy is deposited in the plasma and that thermal conduction has not erased all signatures of the heating.
 A strand heated by low-frequency nanoflares will be allowed to cool well below 1 MK, producing a strong cross-correlation in these channel pairs, while a strand heated by high-frequency nanoflares will rarely be allowed to cool below the equilibrium temperature such that the cross-correlation, particularly in the 171 \AA{} channel pairs, is likely to be relatively low.
 This cooling behavior is illustrated for a single strand in Figure 3 of \citetalias{barnes_understanding_2019}.
-\added{The relative importance of features from these three channels is again consistent with \citet{bradshaw_patterns_2016} who found that small, but non-zero 211-193 \AA{} time lags, in combination with the prevalence of zero 171-131 \AA{} time lags, are inconsistent with low-frequency nanoflares.}
+\added{The relative importance of features from these three channels is again consistent with \citet{bradshaw_patterns_2016} who found that short, but non-zero 211-193 \AA{} time lags, in combination with the prevalence of zero 171-131 \AA{} time lags, are inconsistent with low-frequency nanoflares.}
 
 \added{Interestingly, we find that there are no channel pairs, either for the time lag or maximum cross-correlation, that include the 94 \AA{} channel in the ten most important features as shown in \autoref{tab:importance}.    
 Observed time lags \citep{viall_evidence_2012,viall_survey_2017} show a transition between being dominated by the ``hot'' 94 \AA{} emission in the inner core to ``cool'' 94 \AA{}  emission in the periphery as evidenced by time lags changing from positive to negative, respectively.
 Two proposed explanations for this switchover are that either impulsive heating in the cores is more energetic or it is more frequent.
 The inability of the 94 \AA{} pairs to effectively discriminate between heating frequencies, as measured by the feature importance, points to the switchover being dominated by the energy rather than the frequency.
-This is also confirmed by the top row of Figure 8 of \citetalias{barnes_understanding_2019} which shows the positive-negative switchover between the inner core and the periphery for all heating frequencies.}
+This is also confirmed by the top row of Figure 8 of \citetalias{barnes_understanding_2019} which shows the positive-negative switchover between the inner core and the periphery for all heating frequencies.
+However, we note that, compared to the other \AR s studied by \citet{warren_systematic_2012} and \citetalias{viall_survey_2017}, our chosen \AR{}, NOAA 1158, is relatively cool.
+In \AR s dominated by more hot 94 \AA{} emission, the 94 \AA{} channel pairs may have a higher feature importance.}
 
 While the maximum cross-correlation in the 211-193 \AA{} channel pair (see bottom row of \autoref{fig:correlations}) is very high across the whole \AR{}, the 193-171 \AA{} and 211-171 \AA{} maps (as well as the other 171 \AA{} pairs except for 171-131 \AA{}) show a comparatively low cross-correlation.
-Combined with the heating frequency maps in \autoref{fig:frequency-maps} which indicate that the center of the \AR{} is consistent with high-frequency heating, this suggests that many of the loops in the core are kept from cooling much below 1.6 MK.
+Combined with the heating frequency maps in \autoref{fig:frequency-maps} which indicate that the center of the \AR{} is consistent with high-frequency heating, this suggests that many of the loops in the core are kept from cooling much below 0.9 MK.
 
 An important caveat to this method for systematic comparison as we have applied it here is that the random forest classifier trained on the simulated emission measure slopes, peak temperatures, time lags, and maximum cross-correlations cannot provide any assessment of the accuracy of our model as described in \citetalias{barnes_understanding_2019}.
 The classifier can only say, out of the provided classes (high-, intermediate-, or low-frequency), which type of heating \textit{best} describes the data.

@@ -64,8 +64,8 @@ Constraining the frequency of energy deposition in magnetically-closed \AR{} cor
 However, understanding which set of model inputs best matches a set of observations is complicated by the need for any proposed heating model to simultaneously satisfy multiple observable constraints.
 In this paper, we train a random forest classification model on a set of forward-modeled observable quantities, namely the emission measure slope, the peak temperature of the emission measure distribution, and the time lag and maximum cross-correlation between multiple pairs of AIA channels.
 We then use our trained model to classify the heating frequency in every pixel of \AR{} NOAA 1158 using the observed emission measure slopes, peak temperatures, time lags, and maximum cross-correlations and are able to map the heating frequency across the entire active region.
-We find that high-frequency heating dominates in the inner core of the \AR{} while intermediate frequency dominates in the strands closer to the periphery of the \AR{}.
-Additionally, we assess the importance of each feature in our trained classification model and find that the emission measure slope is the dominant feature in deciding with which heating frequency a given pixel is most consistent.
+We find that high-frequency heating dominates in the inner core of the \AR{} while intermediate frequency dominates closer to the periphery of the \AR{}.
+Additionally, we assess the importance of each observed quantity in our trained classification model and find that the emission measure slope is the dominant feature in deciding with which heating frequency a given pixel is most consistent.
 The technique presented here offers a very promising and widely applicable method for assessing observations in terms of detailed forward models given an arbitrary number of observable constraints.
 \end{abstract}
 %% Keywords
@@ -86,6 +86,9 @@ The technique presented here offers a very promising and widely applicable metho
 \acknowledgments
 This research makes use of SunPy, an open-source and free community-developed solar data analysis package written in Python \citep{the_sunpy_community_sunpy_2020}. 
 SJB and WTB were supported by the NSF through CAREER award AGS-1450230.
+WTB was supported by NASA’s Hinode program.
+Hinode is a Japanese mission developed and launched by ISAS/JAXA with NAOJ as a domestic partner and NASA and STFC (UK) as international partners.
+It is operated by these agencies in cooperation with ESA and NSC (Norway).
 The work of NMV was supported by the NASA Supporting Research program.
 The complete source of this paper, including the data, code, and instructions for training the classification model, can be found at \href{https://github.com/rice-solar-physics/synthetic-observables-paper-observations}{github.com/rice-solar-physics/synthetic-observables-paper-observations}.
 

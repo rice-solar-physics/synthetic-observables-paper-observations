@@ -231,7 +231,9 @@ If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation co
 
 \added{Similar to \citet{barnes_understanding_2019}, we define the \textit{inner core} as the area near the center of the \AR{} whose X-ray and EUV emission is dominated by short, closed loops.
 We define the \textit{periphery} as the region farthest from the inner core containing closed loops which are still visible relative to the surrounding diffuse emission.
-The inner core (``IC'') and the periphery (``P'') of the \AR{} are indicated in red in the left panel of \autoref{fig:em-slopes}.}
+The inner core (``IC'') and the periphery (``P'') of the \AR{} are indicated in red in the left panel of \autoref{fig:em-slopes}.
+While these definitions of different parts of the \AR{} are conceptual and qualitative rather than strictly quantitative, they will be useful in discussing our results in \autoref{sec:compare} and \autoref{sec:discussion}.}
+
 The emission measure slope tends to be more steep near the center of the \AR{} and tends to increase from $\sim2.5$ to $>5$ moving from the periphery to the inner core of the \AR{}.
 This result is consistent with \citet{del_zanna_evolution_2015} who computed the emission measure slope in each pixel of \AR{} NOAA 1193 and found that $a$ was greatest near the middle of the \AR{}.
 The exception to this trend is the spatially-coherent structure on the lower edge of the \AR{}, near $(-300\arcsec,-320\arcsec)$, which shows emission measure slopes $>5$.
@@ -241,10 +243,10 @@ The right panel of \autoref{fig:em-slopes} shows the distribution of emission me
 As noted in the legend, the black histogram denotes the observed slopes while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively.
 The mean of the observed distribution of $a$ is \py[manager_em]|f'{a_mean:.2f}'| and the standard deviation is \py[manager_em]|f'{a_std:.2f}'|. 
 
-We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that a range of nanoflare heating frequencies is operating across the \AR.
+We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that \added{no single heating scenario can explain the width of the distribution and that} a range of nanoflare heating frequencies is operating across the \AR.
 In particular, the observed distribution of slopes overlaps quite strongly with both the intermediate- and high frequency-slopes.
 Compared to the simulated distributions of $a$ for low- and intermediate-frequency heating, the observed distribution is wide with a relatively flat top between $a\approx3$ and $a\approx4$.
-The observed distribution is not strongly peaked about a single value of $a$.
+In contrast to all three simulated distributions, the observed slope distribution is not strongly peaked about any single value of $a$.
 
 % spell-checker: disable %
 \begin{pycode}[manager_em]
@@ -304,15 +306,19 @@ tfig.fig_str = fig_str
 
 Additionally, we measure $T_{peak}$, the value at the center of the temperature bin in which the emission measure distribution is maximized, in each pixel of \AR{} NOAA 1158 from the derived emission measure distributions.
 \autoref{fig:em-tpeaks} shows $T_{peak}$, in MK, in each pixel of the \AR{}.
-We note that the the majority of pixels have values of $T_{peak}$ between 1.5 and 3.5 MK.
+We find that the the majority of pixels have values of $T_{peak}$ between 1.5 and 3.5 MK.
 Additionally, we find that $T_{peak}$ is highest in the inner core of the \AR{}, just over 3.5 MK, and decreases to between 1.5 and 2 MK as we move outward toward the periphery.
 Though not shown here, we find this same general trend in our model \AR s for all heating frequencies.
 For example, Figure 5 of \citetalias{barnes_understanding_2019} shows that the \dem{} distributions near the inner core of our model \AR{} have $T_{peak}\approx3$ MK while the \dem{} closer to the periphery has $T_{peak}\approx2$ MK.
 
+We note that there are several small regions which have $T_{peak}\ge4$ MK.
+Comparing \autoref{fig:em-tpeaks} with \autoref{fig:intensity-maps}, we see that these regions correspond to ``open'' fan loops which are cooler and have lower signal-to-noise ratio, suggesting that the inverted \dem{} solutions are not reliable in these regions.
+However, we already exclude the emission measure slopes in these regions due to their low correlation coefficients (see \autoref{fig:em-slopes}) and thus the unreliable inverted solutions will not affect our later predictions in \autoref{sec:compare}.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                   Time lags                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Time lags}\label{sec:timelags}
+\subsection{Time Lags}\label{sec:timelags}
 
 % spell-checker: disable %
 \begin{pycode}[manager_timelags]
@@ -400,16 +406,16 @@ for i,cp in enumerate(channel_pairs):
         lon.set_ticklabel_visible(False)
         lat.set_ticklabel_visible(False)
     ax.text(
-        #(-190*u.arcsec).to('deg').value,
-        #(-360*u.arcsec).to('deg').value,
-        (-430*u.arcsec).to('deg').value,
-        (-135*u.arcsec).to('deg').value,
+        (-190*u.arcsec).to('deg').value,
+        (-360*u.arcsec).to('deg').value,
+        #(-430*u.arcsec).to('deg').value,
+        #(-135*u.arcsec).to('deg').value,
         '{}-{}'.format(*cp),
-        color='tab:pink',
+        color='tab:pink' if i in [7,8,10,11,12,13] else 'k',#'tab:pink',
         transform=ax.get_transform('world'),
         fontsize=plt.rcParams['axes.labelsize'],
-        horizontalalignment='left',
-        verticalalignment='top',
+        horizontalalignment='right',
+        verticalalignment='bottom',
     )
 plt.subplots_adjust(wspace=0.03, hspace=0.03)
 cax = fig.add_axes([
@@ -433,7 +439,7 @@ fig_timelags.fig_str = fig_str
 
 \autoref{fig:timelags} shows the time-lag maps of \AR{} NOAA 1158 for all 15 channel pairs.
 Blacks, blues, and greens indicate negative time lags while reds, oranges, and yellows correspond to positive time lags.
-Olive green denotes zero time lag.
+Olive green denotes near zero time lag.
 The range of the colorbar is $\pm6000$ s.
 If the maximum cross-correlation in a given pixel is too small, $\max\mathcal{C}_{AB}<\py|correlation_threshold|$, the pixel is masked and colored white.
 
@@ -447,7 +453,7 @@ Additionally, \citetalias{viall_survey_2017} did not apply any masking based on 
 For the majority of the channel pairs, we find persistent positive time lags across most of the \AR{}, indicative of plasma cooling through the AIA passbands.
 The 94-131, 211-131, 193-171, and 193-131 \AA{} pairs show coherent positive time lags on the periphery of the \AR{}, but zero time lag in the center of the \AR{}.
 On the other hand, 171-131 \AA{} channel pair map shows zero time lags in nearly every pixel of the \AR{}.
-\added{While the 211-193 \AA{} channel pair map also appears to show mostly zero time lags, there are a significant number of positive time lags compared to the 171-131 \AA{} channel pair, consistent with \citet{viall_evidence_2012,viall_survey_2017}}
+\added{While the 211-193 \AA{} channel pair map also appears to show mostly zero time lags, there are a significant number of positive time lags compared to the 171-131 \AA{} channel pair, consistent with \citet{viall_evidence_2012,viall_survey_2017}}.
 From \autoref{fig:aia-response}, we see that both of these channel pairs are strongly overlapping in temperature space such that their respective peaks in intensity are likely to be close to coincident in time as the plasma cools.
 \added{However, the presence of the positive, though small 211-193 \AA{} time lags compared to the zero 171-131 \AA{} time lags is indicative of plasma cooling into, but not through the 131 \AA{} channel \citep{bradshaw_patterns_2016}.}
 
@@ -527,6 +533,7 @@ fig_correlations.fig_str = fig_str
 \autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}.
 In this figure, we do not mask any of the pixels. Though the value of the cross-correlation can range from $-1$ (perfectly anti-correlated) to $+1$ (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the light curves in each channel pair are in phase.
 \explain{I went back and looked at the distributions of max cross-correlation values for each channel pair an compared them to those shown in \citet{viall_evidence_2012} and they are all qualitatively similar.}
+\added{In practice, these values are rarely less than zero as the time lag method finds the maximum cross-correlation over all possible time lags.}
 
 In every channel pair, we find that the maximum cross-correlation \replaced{is highly structured}{maps reveal coherent loop-like structures similar to those seen in the observed intensities shown in \autoref{fig:intensity-maps}}, indicating that these loops and the surrounding diffuse emission are evolving coherently through the AIA passbands.
 In most channel pairs, the inner core tends to have the highest cross-correlation while areas near the corners of the images have low cross-correlation.
@@ -534,4 +541,4 @@ In most channel pairs, the inner core tends to have the highest cross-correlatio
 This lower signal-to-noise ratio means that any physical variations are more likely to be lost in the noise.}
 Note that the channel pairs which had the most zero time lags in \autoref{fig:timelags}, 211-193 and 171-131, show high cross-correlations across the entire \AR{}.
 This again emphasizes the point that zero time lags do not correspond to steady heating.
-If the whole \AR{} was heated steadily, we would expect low cross-correlation and no preferred time lag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.
+If the whole \AR{} was heated producing steady emission, we would expect low cross-correlation and no preferred time lag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.

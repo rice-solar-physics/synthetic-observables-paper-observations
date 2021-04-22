@@ -120,12 +120,12 @@ We note that all of these features are likely to be correlated with one another 
 In \autoref{sec:feature-combos}, we examine how training our model on different combinations of these features impacts our predictions.
 
 Before training the model, we flatten the predicted emission measure slope, peak temperature, time lag, and cross-correlation maps from \citetalias{barnes_understanding_2019} for the high-, intermediate-, and low-frequency heating cases into an array of length $n_xn_y$, where $n_x$ and $n_y$ are the dimensions of the predicted images.
+We stack each flattened array column-wise in features and row-wise in heating frequency such that all of the simulated data are encapsulated in a single data matrix $X$ of dimension $n\times p$.
+$p=32$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency.
+
 As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation.
 If a pixel is masked in any frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points.
 \added{This ensures we do not have an imbalance in the number of points in each class when training our model.}
-
-We stack each flattened array column-wise in features and row-wise in heating frequency such that all of the simulated data are encapsulated in a single data matrix $X$ of dimension $n\times p$.
-$p=32$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[manager_ml]|f'{X.shape[0]:.0f}'|$ is the total number of pixels for all heating frequencies minus those pixels which were masked in at least one feature of one frequency.
 \added{In total, we mask \py[manager_ml]|f'{100 * (1 - X.shape[0]/(3 * 500 * 500)):.2f}'|$\%$ of the total pixels from all three heating frequency cases for our simulated features used for training our classification models.}
 The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$.
 
@@ -335,7 +335,7 @@ The importance of a particular feature in the random forest classification is th
 
 Note that if $G_{m,R}=G_{m,L}=G_m$, $\Delta G_m=0$ because the split at node $m$ did not improve the discrimination between classes compared to the split at the previous node.
 However, if the purity of the left or right node increases such that $G_{m,R}$ or $G_{m,L}$ decrease relative to $G_m$, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
-\added{The larger the value of $\Delta G_m$, when summed over all relevant splits and averaged over all trees, the important that particular feature is.}
+\added{The larger the value of $\Delta G_m$, when summed over all relevant splits and averaged over all trees, the more important that particular feature is.}
 
 % spell-checker: disable %
 \begin{pycode}[manager_ml]
@@ -375,7 +375,9 @@ Additionally, using less than $1/3$ of the total number of features, we achieve 
 
 According to \autoref{tab:importance}, the emission measure slope, $a$, has the most discriminating power in the random forest classifier.
 In particular, $a$ is more important than the second most important feature by over a factor of 2 and more important than the most important time lag feature by nearly an order of magnitude.
-Interestingly, we find that $T_{peak}$ ranks fifth in feature importance though it is still less important than $a$ by nearly an order of magnitude.
+This is not surprising given that the value of the time lag and maximum cross-correlation measurements is in the combination of all channel pairs, allowing one to track the evolution of the plasma as it peaks in subsequently cooler channels.
+This is confirmed by the lower test error in cases B and C compared to case A, as seen in \autoref{tab:cases}.
+Additionally, we find that $T_{peak}$ ranks fifth in feature importance though it is still less important than $a$ by nearly an order of magnitude.
 
 While useful, the feature importance in random forest classifiers should be interpreted cautiously, especially in cases where the features are correlated.
 The time lags, as well as the maximum cross-correlations, in all channel pairs are very strongly correlated.
