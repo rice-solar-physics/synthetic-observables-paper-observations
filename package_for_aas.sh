@@ -41,7 +41,7 @@ cp -r paper/sections $DEST_DIR
 cp -r paper/data $DEST_DIR
 cp -r paper/python $DEST_DIR
 cp paper/aasjournal.bst $DEST_DIR
-cp paper/aastex62.cls $DEST_DIR
+cp paper/aastex63.cls $DEST_DIR
 cp paper/pythontex.tex $DEST_DIR
 cp paper/paper.tex $DEST_DIR
 cp paper/references.bib $DEST_DIR
