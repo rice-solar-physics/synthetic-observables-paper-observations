@@ -229,10 +229,10 @@ We calculate $a$ by fitting a first-order polynomial to the log-transformed emis
 As in \citetalias{barnes_understanding_2019}, the fit is only computed over the temperature range $8\times10^5\,\textup{K}\le T \le T_{peak}$, where $T_\textup{peak}=\argmax_T\,\textup{EM}(T)$ is the temperature at which the emission measure distribution peaks.
 If $r^2<\py|rsquared_threshold|$ in any pixel, where $r^2$ is the correlation coefficient for the first-order polynomial fit, the pixel is masked and colored white. 
 
-\added{Similar to \citet{barnes_understanding_2019}, we define the \textit{inner core} as the area near the center of the \AR{} whose X-ray and EUV emission is dominated by short, closed loops.
+Similar to \citet{barnes_understanding_2019}, we define the \textit{inner core} as the area near the center of the \AR{} whose X-ray and EUV emission is dominated by short, closed loops.
 We define the \textit{periphery} as the region farthest from the inner core containing closed loops which are still visible relative to the surrounding diffuse emission.
 The inner core (``IC'') and the periphery (``P'') of the \AR{} are indicated in red in the left panel of \autoref{fig:em-slopes}.
-While these definitions of different parts of the \AR{} are conceptual and qualitative rather than strictly quantitative, they will be useful in discussing our results in \autoref{sec:compare} and \autoref{sec:discussion}.}
+While these definitions of different parts of the \AR{} are conceptual and qualitative rather than strictly quantitative, they will be useful in discussing our results in \autoref{sec:compare} and \autoref{sec:discussion}.
 
 The emission measure slope tends to be more steep near the center of the \AR{} and tends to increase from $\sim2.5$ to $>5$ moving from the periphery to the inner core of the \AR{}.
 This result is consistent with \citet{del_zanna_evolution_2015} who computed the emission measure slope in each pixel of \AR{} NOAA 1193 and found that $a$ was greatest near the middle of the \AR{}.
@@ -243,7 +243,7 @@ The right panel of \autoref{fig:em-slopes} shows the distribution of emission me
 As noted in the legend, the black histogram denotes the observed slopes while the blue, orange, and green histograms are the distributions of emission measure slopes computed from the predicted AIA intensities in \citetalias{barnes_understanding_2019} for high-, intermediate-, and low-frequency nanoflares, respectively.
 The mean of the observed distribution of $a$ is \py[manager_em]|f'{a_mean:.2f}'| and the standard deviation is \py[manager_em]|f'{a_std:.2f}'|. 
 
-We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that \added{no single heating scenario can explain the width of the distribution and that} a range of nanoflare heating frequencies is operating across the \AR.
+We find that the observed distribution of slopes overlaps the distributions of predicted slopes for all three heating scenarios, suggesting that no single heating scenario can explain the width of the distribution and that a range of nanoflare heating frequencies is operating across the \AR.
 In particular, the observed distribution of slopes overlaps quite strongly with both the intermediate- and high frequency-slopes.
 Compared to the simulated distributions of $a$ for low- and intermediate-frequency heating, the observed distribution is wide with a relatively flat top between $a\approx3$ and $a\approx4$.
 In contrast to all three simulated distributions, the observed slope distribution is not strongly peaked about any single value of $a$.
@@ -363,8 +363,8 @@ tfig.fig_str = fig_str
 Next, we apply the time lag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution.
 As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible ``hot-cool'' pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the time lag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}.
 We consider all possible offsets over the interval $\pm6$ hours.
-\added{Following the convention of \citet{viall_evidence_2012}, we take the order of the channels, from hottest to coolest, to be: 94, 335, 211, 193, 171, 131 \AA{}, meaning that \textit{a positive time lag indicates cooling plasma}.
-Observationally, this is often a good representation of how the plasma in a quiescent \AR{} evolves through the AIA channels.}
+Following the convention of \citet{viall_evidence_2012}, we take the order of the channels, from hottest to coolest, to be: 94, 335, 211, 193, 171, 131 \AA{}, meaning that \textit{a positive time lag indicates cooling plasma}.
+Observationally, this is often a good representation of how the plasma in a quiescent \AR{} evolves through the AIA channels.
 The response curves as a function of temperature for these six EUV channels of AIA are shown in \autoref{fig:aia-response}.
 The details of the cross-correlation and time lag calculations can be found in the appendix of \citetalias{barnes_understanding_2019}.
 
@@ -445,25 +445,25 @@ If the maximum cross-correlation in a given pixel is too small, $\max\mathcal{C}
 
 Note that \citetalias{viall_survey_2017} carried out the time lag analysis on this same \AR{}, NOAA 1158 (their region 2), as part of a survey of the catalogue of \AR{}s compiled by \citet{warren_systematic_2012}.
 We repeat this analysis here to ensure that we are treating the observed intensities in the exact same manner as the predicted intensities from \citetalias{barnes_understanding_2019}.
-\added{The method employed here for calculating the time lag \citepalias[see Appendix C of][]{barnes_understanding_2019} yields quantitatively identical results to that used by \citetalias{viall_survey_2017} \citep[see Section 2 of][]{viall_evidence_2012}.
+The method employed here for calculating the time lag \citepalias[see Appendix C of][]{barnes_understanding_2019} yields quantitatively identical results to that used by \citetalias{viall_survey_2017} \citep[see Section 2 of][]{viall_evidence_2012}.
 Comparing \autoref{fig:timelags} to Figure 2 and Figure 4 of \citetalias{viall_survey_2017}, we find all of the same qualitative features in the time lag maps for each channel pair.
 We note that, while there are differences between the two sets of time lag maps, these can be attributed to differences in the field of view of the cutouts and ``derotation'' reference date.
-Additionally, \citetalias{viall_survey_2017} did not apply any masking based on the maximum cross-correlation value.}
+Additionally, \citetalias{viall_survey_2017} did not apply any masking based on the maximum cross-correlation value.
 
 For the majority of the channel pairs, we find persistent positive time lags across most of the \AR{}, indicative of plasma cooling through the AIA passbands.
 The 94-131, 211-131, 193-171, and 193-131 \AA{} pairs show coherent positive time lags on the periphery of the \AR{}, but zero time lag in the center of the \AR{}.
 On the other hand, 171-131 \AA{} channel pair map shows zero time lags in nearly every pixel of the \AR{}.
-\added{While the 211-193 \AA{} channel pair map also appears to show mostly zero time lags, there are a significant number of positive time lags compared to the 171-131 \AA{} channel pair, consistent with \citet{viall_evidence_2012,viall_survey_2017}}.
+While the 211-193 \AA{} channel pair map also appears to show mostly zero time lags, there are a significant number of positive time lags compared to the 171-131 \AA{} channel pair, consistent with \citet{viall_evidence_2012,viall_survey_2017}.
 From \autoref{fig:aia-response}, we see that both of these channel pairs are strongly overlapping in temperature space such that their respective peaks in intensity are likely to be close to coincident in time as the plasma cools.
-\added{However, the presence of the positive, though small 211-193 \AA{} time lags compared to the zero 171-131 \AA{} time lags is indicative of plasma cooling into, but not through the 131 \AA{} channel \citep{bradshaw_patterns_2016}.}
+However, the presence of the positive, though small 211-193 \AA{} time lags compared to the zero 171-131 \AA{} time lags is indicative of plasma cooling into, but not through the 131 \AA{} channel \citep{bradshaw_patterns_2016}.
 
 Additionally, the 94-335, 94-193, and 94-211 \AA{} pairs all show significant coherent negative time lags.
 Because the 94 \AA{} channel is bimodal in temperature (see \autoref{fig:aia-response}), a negative time lag is indicative of the plasma cooling first through the ``cool'' channel and then through the cooler component of the 94 \AA{} bandpass.
-\added{In this case, the cooler, 1 MK component of the 94 \AA{} dominates the emission.}
+In this case, the cooler, 1 MK component of the 94 \AA{} dominates the emission.
 The 94-171 and 94-131 pairs show only positive time lags because the 171 \AA{} and 131 \AA{} channels peak at cooler temperatures than the cool component of the 94 \AA{} channel.
 See \citetalias{viall_survey_2017} for a more detailed discussion of the time lag results from NOAA 1158.
 Note that unlike the predicted time lags in \citetalias{barnes_understanding_2019}, none of the pairs involving the 131 \AA{} channel, which is also bimodal in temperature, show any coherent negative time lags and, in particular, the inner cores of each 131 \AA{} pair show zero time lag.
-\added{This is indicative of an excess of hot plasma in our model \AR{} relative to the observations.}
+This is indicative of an excess of hot plasma in our model \AR{} relative to the observations.
 
 % spell-checker: disable %
 \begin{pycode}[manager_timelags]
@@ -532,13 +532,13 @@ fig_correlations.fig_str = fig_str
 
 \autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}.
 In this figure, we do not mask any of the pixels. Though the value of the cross-correlation can range from $-1$ (perfectly anti-correlated) to $+1$ (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the light curves in each channel pair are in phase.
-\explain{I went back and looked at the distributions of max cross-correlation values for each channel pair an compared them to those shown in \citet{viall_evidence_2012} and they are all qualitatively similar.}
-\added{In practice, these values are rarely less than zero as the time lag method finds the maximum cross-correlation over all possible time lags.}
+I went back and looked at the distributions of max cross-correlation values for each channel pair an compared them to those shown in \citet{viall_evidence_2012} and they are all qualitatively similar.
+In practice, these values are rarely less than zero as the time lag method finds the maximum cross-correlation over all possible time lags.
 
-In every channel pair, we find that the maximum cross-correlation \replaced{is highly structured}{maps reveal coherent loop-like structures similar to those seen in the observed intensities shown in \autoref{fig:intensity-maps}}, indicating that these loops and the surrounding diffuse emission are evolving coherently through the AIA passbands.
+In every channel pair, we find that the maximum cross-correlation maps reveal coherent loop-like structures similar to those seen in the observed intensities shown in \autoref{fig:intensity-maps}, indicating that these loops and the surrounding diffuse emission are evolving coherently through the AIA passbands.
 In most channel pairs, the inner core tends to have the highest cross-correlation while areas near the corners of the images have low cross-correlation.
-\added{In general, this is expected as the periphery has less emission than the core in all channels and thus lower count rates.
-This lower signal-to-noise ratio means that any physical variations are more likely to be lost in the noise.}
+In general, this is expected as the periphery has less emission than the core in all channels and thus lower count rates.
+This lower signal-to-noise ratio means that any physical variations are more likely to be lost in the noise.
 Note that the channel pairs which had the most zero time lags in \autoref{fig:timelags}, 211-193 and 171-131, show high cross-correlations across the entire \AR{}.
 This again emphasizes the point that zero time lags do not correspond to steady heating.
 If the whole \AR{} was heated producing steady emission, we would expect low cross-correlation and no preferred time lag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.

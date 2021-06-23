@@ -125,8 +125,8 @@ $p=32$ is the total number of features and $n=3n_xn_y - n_\textup{mask}=\py[mana
 
 As before, we mask pixels where $r^2<\py|rsquared_threshold|$ for the emission measure slope fit and where $\max\mathcal{C}_{AB}<\py|correlation_threshold|$ for the cross-correlation.
 If a pixel is masked in any frequency case, we mask it in all other frequencies to ensure that we have an equal number of high-, intermediate-, and low-frequency data points.
-\added{This ensures we do not have an imbalance in the number of points in each class when training our model.}
-\added{In total, we mask \py[manager_ml]|f'{100 * (1 - X.shape[0]/(3 * 500 * 500)):.2f}'|$\%$ of the total pixels from all three heating frequency cases for our simulated features used for training our classification models.}
+This ensures we do not have an imbalance in the number of points in each class when training our model.
+In total, we mask \py[manager_ml]|f'{100 * (1 - X.shape[0]/(3 * 500 * 500)):.2f}'|$\%$ of the total pixels from all three heating frequency cases for our simulated features used for training our classification models.
 The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$.
 
 We apply a $2/3-1/3$ train-test split to $X$ and $Y$ such that approximately $1/3$ of the samples are reserved for model evaluation to ensure that our model has not overfit the data.
@@ -136,11 +136,11 @@ By transforming the data in this manner, we are treating each pixel in the image
 
 The same procedure as described above is applied to the observed emission measure slopes, peak temperatures, time lags, and cross-correlations as shown in \autoref{fig:em-slopes}, \autoref{fig:em-tpeaks}, \autoref{fig:timelags}, and \autoref{fig:correlations}, respectively.
 These results are flattened to a single data matrix $X^\prime$ of dimension $n^\prime\times p$, where $n^\prime=n_x^\prime n_y^\prime - n^\prime_\textup{mask}=\py[manager_ml]|f'{X_observation.shape[0]:.0f}'|$.
-\added{We apply the same masking procedure as described above based on the measured emission measure slopes and maximum cross-correlations and mask \py[manager_ml]|f'{100 / (1 + X_observation.shape[0] / np.where(bad_pixels)[0].shape[0]):.2f}'|$\%$ of the total observed pixels.}
+We apply the same masking procedure as described above based on the measured emission measure slopes and maximum cross-correlations and mask \py[manager_ml]|f'{100 / (1 + X_observation.shape[0] / np.where(bad_pixels)[0].shape[0]):.2f}'|$\%$ of the total observed pixels.
 The random forest model is trained on $X_\textup{train},Y_\textup{train}$ and model performance is evaluated on the ``unseen'' test set $X_\textup{test},Y_\textup{test}$.
 The trained model is then applied to $X^\prime$ in order to predict the heating frequency in each pixel, $Y^\prime$.
 
-\added{Though model ``hyperparameters'' (e.g. the number of estimators, maximum tree depth, number of split candidates) are often determined systematically by finding the set of parameters that minimize the misclassification error on a subset of the test data, we do not apply these more formal procedures here.}
+Though model ``hyperparameters'' (e.g. the number of estimators, maximum tree depth, number of split candidates) are often determined systematically by finding the set of parameters that minimize the misclassification error on a subset of the test data, we do not apply these more formal procedures here.
 A manual exploration of the hyperparameters reveals that adding more than \py[manager_ml]|rf_options['n_estimators']| trees to the random forest provides only a marginal decrease in the test error while increasing the training time.
 Similarly, we find a maximum depth of \py[manager_ml]|rf_options['max_depth']| for each decision tree provides sufficient complexity to each tree as evaluated by the test error while not significantly increasing the computational cost of the training.
 However, in case A (see \autoref{tab:cases}), we find that less complex trees (i.e. lower maximum depth) result in a reduction in the misclassification error by $7-8\%$.
@@ -316,7 +316,7 @@ The frequency classification map for case A is as expected given the observed em
 From the fourth column of \autoref{tab:cases}, we find that adding more features to the classifier significantly improves the accuracy as computed on the test data set.
 However, comparing frequency maps in cases A ($p=2$) and C ($p=32$), we find that the general pattern of heating frequency across the \AR{} is similar despite the large differences between the misclassification error in case A (\py[manager_ml]|f"{tab['Error'][0]:.2f}"|) and case C (\py[manager_ml]|f"{tab['Error'][2]:.2f}"|).
 Additionally, looking at the seventh column of \autoref{tab:cases} and the panels in the third column of \autoref{fig:probability-maps}, we find that adding the time lag and maximum cross-correlation features significantly decreases the number of pixels classified as low frequency.
-\added{Overall, we find that training the classifier on all of the features (C) versus only the emission measure slope and peak temperature (A) increases the number of pixels classified as high-frequency and decreases the number of intermediate- and low-frequency pixels, with the reduction in the low-frequency pixels being the most prominent.}
+Overall, we find that training the classifier on all of the features (C) versus only the emission measure slope and peak temperature (A) increases the number of pixels classified as high-frequency and decreases the number of intermediate- and low-frequency pixels, with the reduction in the low-frequency pixels being the most prominent.
 
 Interestingly, we find that when we use relatively shallow trees to build the random forest (e.g. a maximum depth of $<10$), the misclassification error on the test data set in case B becomes larger than that of case A, despite $p_\textup{B}>p_\textup{A}$.
 If very complex trees (maximum depth $>100$) are used in case A, the model overfits the data and the resulting classification becomes very noisy. 
@@ -335,7 +335,7 @@ The importance of a particular feature in the random forest classification is th
 
 Note that if $G_{m,R}=G_{m,L}=G_m$, $\Delta G_m=0$ because the split at node $m$ did not improve the discrimination between classes compared to the split at the previous node.
 However, if the purity of the left or right node increases such that $G_{m,R}$ or $G_{m,L}$ decrease relative to $G_m$, $\Delta G_m > 0$ because the split at node $m$ has added information to the classifier by preferentially sorting samples of a single class to either the left or right child node.
-\added{The larger the value of $\Delta G_m$, when summed over all relevant splits and averaged over all trees, the more important that particular feature is.}
+The larger the value of $\Delta G_m$, when summed over all relevant splits and averaged over all trees, the more important that particular feature is.
 
 % spell-checker: disable %
 \begin{pycode}[manager_ml]
