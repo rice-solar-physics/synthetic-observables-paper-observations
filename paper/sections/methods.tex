@@ -17,7 +17,7 @@ manager_data = texfigure.Manager(
 We analyze 12 hours of AIA observations of \AR{} NOAA 1158 in six EUV channels, 94, 131, 171, 193, 211, and 335 \AA{}, beginning at 2011 February 12 12:00:00 UTC and ending at 2011 February 13 00:00:00 UTC.
 The \AR{} was chosen from the catalogue of \AR s originally compiled by \citet{warren_systematic_2012} and later studied by \citetalias{viall_survey_2017}.
 The full-disk, level-1 AIA data products in FITS file format are obtained from the Joint Science Operations Center \citep[JSOC,][]{couvidat_observables_2016} at the full instrument cadence of 12 s and full spatial resolution using the drms Python client \citep{glogowski_drms_2019}.
-This amounts to a total of 21597 images across all six channels and the entire 12 hour observing window.
+This amounts to a total of 21597 images across all six channels and the entire 12 h observing window.
 
 After downloading the data, we apply the \texttt{aiaprep} method, as implemented in sunpy \citep{the_sunpy_community_sunpy_2020}, to each full-disk image in order to remove the instrument roll angle, align the center of the image with the center of the Sun, and scale each image to a common spatial resolution such that images in all channels have a spatial scale of 0.6\arcsec-per-pixel.
 Additionally, we normalize each image by the exposure time such that the data have units of DN pixel$^{-1}$ s$^{-1}$.
@@ -61,8 +61,8 @@ for i,f in enumerate(fits_files):
         lat.set_ticklabel(rotation='vertical')
         lon.set_axislabel('Helioprojective Longitude')
         lat.set_axislabel('Helioprojective Latitude')
-    ax.text((-420*u.arcsec).to('deg').value,
-            (-150*u.arcsec).to('deg').value,
+    ax.text((-435*u.arcsec).to('deg').value,
+            (-135*u.arcsec).to('deg').value,
             f'{m.meta["wavelnth"]} $\mathrm{{\AA}}$',
             transform=ax.get_transform('world'),
             verticalalignment='top',
@@ -107,7 +107,7 @@ from matplotlib.lines import Line2D
 \end{pycode}
 % spell-checker: enable %
 
-After prepping, aligning, and cropping all 12 hours of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute the diagnostics of the heating: the emission measure slope, peak temperature, time lag, and maximum cross-correlation.
+After prepping, aligning, and cropping all 12 h of AIA data for all six channels, we carry out the same analysis that we applied to our predicted observations in \citetalias{barnes_understanding_2019} in order to compute the diagnostics of the heating: the emission measure slope, peak temperature, time lag, and maximum cross-correlation.
 First, we compute the emission measure distribution, \dem, in each pixel of the \AR{} from the time-averaged intensities from all six channels using the regularized inversion method of \citet{hannah_differential_2012}.
 As in \citetalias{barnes_understanding_2019}, we use temperature bins of width $\Delta\log T=0.1$ with the left and right edges at $10^{5.5}$ K and $10^{7.2}$ K, respectively.
 The uncertainties on the intensities are estimated using the \texttt{aia\_bp\_estimate\_error.pro} procedure provided by the AIA instrument team in the SolarSoftware package \citep[SSW,][]{freeland_data_1998}.  
@@ -216,7 +216,7 @@ ax.set_ylabel(r'Number of Pixels (Normalized)')
 ax.legend(handles=legend_elements, frameon=False, loc=1)
 ### Save ###
 fig_em_slopes = manager_em.save_figure('em-slopes')
-fig_em_slopes.caption = r"\textit{Left:} Map of emission measure slope, $a$, in each pixel of \AR{} NOAA 1158. The \dem{} is computed from the observed AIA intensities in the six EUV channels time-averaged over the 12-hour observing window. The \dem{} in each pixel is then fit to $T^a$ over the temperature interval $8\times10^5\,\textup{K}\le T < T_{peak}$. Any pixels with $r^2<0.75$ are masked and colored white. ``IC'' and ``P'', marked in red, denote the inner core and periphery of the active region, respectively. \textit{Right:} Distribution of emission measure slopes from the left panel (black) and from \citetalias{barnes_understanding_2019} (blue, orange, green). Each histogram is normalized such that the area under the histogram is equal to 1."
+fig_em_slopes.caption = r"\textit{Left:} Map of emission measure slope, $a$, in each pixel of \AR{} NOAA 1158. The \dem{} is computed from the observed AIA intensities in the six EUV channels time-averaged over the 12 h observing window. The \dem{} in each pixel is then fit to $T^a$ over the temperature interval $8\times10^5\,\textup{K}\le T < T_{peak}$. Any pixels with $r^2<0.75$ are masked and colored white. ``IC'' and ``P'', marked in red, denote the inner core and periphery of the active region, respectively. \textit{Right:} Distribution of emission measure slopes from the left panel (black) and from \citetalias{barnes_understanding_2019} (blue, orange, green). Each histogram is normalized such that the area under the histogram is equal to 1."
 fig_em_slopes.figure_env_name = 'figure*'
 fig_em_slopes.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_em_slopes.fig_str = fig_str
@@ -360,9 +360,9 @@ tfig.fig_str = fig_str
 \py[manager_timelags]|tfig|
 % spell-checker: enable %
 
-Next, we apply the time lag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12-hour observing window at the full temporal and spatial resolution.
+Next, we apply the time lag analysis of \citet{viall_evidence_2012} to every pixel in the \AR{} over the entire 12 h observing window at the full temporal and spatial resolution.
 As in \citetalias{barnes_understanding_2019}, we compute the cross-correlation, $\mathcal{C}_{AB}$, between all possible ``hot-cool'' pairs, $AB$, of the six EUV channels of AIA (15 in total) and find the time lag, $\tau_{AB}$, the temporal offset which maximizes the cross-correlation, in each pixel of the observed \AR{}.
-We consider all possible offsets over the interval $\pm6$ hours.
+We consider all possible offsets over the interval $\pm6$ h.
 Following the convention of \citet{viall_evidence_2012}, we take the order of the channels, from hottest to coolest, to be: 94, 335, 211, 193, 171, 131 \AA{}, meaning that \textit{a positive time lag indicates cooling plasma}.
 Observationally, this is often a good representation of how the plasma in a quiescent \AR{} evolves through the AIA channels.
 The response curves as a function of temperature for these six EUV channels of AIA are shown in \autoref{fig:aia-response}.
@@ -429,7 +429,7 @@ cbar.ax.yaxis.set_ticks_position('right')
 cbar.ax.tick_params(width=0.5)
 cbar.outline.set_linewidth(0.5)
 fig_timelags = manager_timelags.save_figure('timelags')
-fig_timelags.caption = r'Time lag maps of \AR{} NOAA 1158 for all 15 channel pairs. The value of each pixel indicates the temporal offset, in seconds, which maximizes the cross-correlation \citepalias[see appendix of][]{barnes_understanding_2019}. The range of the colorbar is $\pm6000$ s. If $\max\mathcal{C}_{AB}<0.1$, the pixel is masked and colored white. Each map has been cropped to emphasize the core of the \AR{} such that the bottom left corner and top right corner of each image correspond to $(-440\arcsec,-380\arcsec)$ and $(-185\arcsec,-125\arcsec)$, respectively.'
+fig_timelags.caption = r'Time lag maps of \AR{} NOAA 1158 for all 15 channel pairs. The value of each pixel indicates the temporal offset, in seconds, which maximizes the cross-correlation \citepalias[see Appendix C of][]{barnes_understanding_2019}. The range of the colorbar is $\pm6000$ s. If $\max\mathcal{C}_{AB}<0.1$, the pixel is masked and colored white. Each map has been cropped to emphasize the core of the \AR{} such that the bottom left corner and top right corner of each image correspond to $(-440\arcsec,-380\arcsec)$ and $(-185\arcsec,-125\arcsec)$, respectively.'
 fig_timelags.figure_env_name = 'figure*'
 fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
 fig_timelags.fig_str = fig_str
@@ -532,7 +532,6 @@ fig_correlations.fig_str = fig_str
 
 \autoref{fig:correlations} shows the maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{}.
 In this figure, we do not mask any of the pixels. Though the value of the cross-correlation can range from $-1$ (perfectly anti-correlated) to $+1$ (perfectly correlated), the colorbar only ranges from 0 to 1 as we are only interested in whether the light curves in each channel pair are in phase.
-I went back and looked at the distributions of max cross-correlation values for each channel pair an compared them to those shown in \citet{viall_evidence_2012} and they are all qualitatively similar.
 In practice, these values are rarely less than zero as the time lag method finds the maximum cross-correlation over all possible time lags.
 
 In every channel pair, we find that the maximum cross-correlation maps reveal coherent loop-like structures similar to those seen in the observed intensities shown in \autoref{fig:intensity-maps}, indicating that these loops and the surrounding diffuse emission are evolving coherently through the AIA passbands.
@@ -541,4 +540,4 @@ In general, this is expected as the periphery has less emission than the core in
 This lower signal-to-noise ratio means that any physical variations are more likely to be lost in the noise.
 Note that the channel pairs which had the most zero time lags in \autoref{fig:timelags}, 211-193 and 171-131, show high cross-correlations across the entire \AR{}.
 This again emphasizes the point that zero time lags do not correspond to steady heating.
-If the whole \AR{} was heated producing steady emission, we would expect low cross-correlation and no preferred time lag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.
+If the whole \AR{} was producing steady emission, we would expect low cross-correlation and no preferred time lag due to the photon noise dominating the variability in each channel \citep{viall_signatures_2016}.

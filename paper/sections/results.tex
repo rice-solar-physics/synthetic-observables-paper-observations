@@ -96,7 +96,7 @@ Unlike many statistical learning techniques, decision trees do not assume any fu
 However, decision trees have two primary weaknesses: (1) they are known to have lower predictive accuracy than other more restrictive classification strategies and (2) they have high variance such that a single tree is not very robust to small changes in the training data \citep{james_introduction_2013}.
 
 While individual decision trees are ``weak learners,'' combined they give accurate and robust predictions.
-Random forest classifiers, first developed by \citet{breiman_random_2001}, provide an ensemble statistical learning method for combining many noisy, decorrelated decision trees in order to improve prediction accuracy and robustness.
+Random forest classifiers, first developed by \added{\citet{ho_random_1995} and later improved by} \citet{breiman_random_2001}, provide an ensemble statistical learning method for combining many noisy, decorrelated decision trees in order to improve prediction accuracy and robustness.
 As in the bootstrap-aggregation, or ``bagging'', technique developed by \citet{breiman_bagging_1996}, each tree in the random forest is trained on only a subset of the total training data in order to reduce the variance of the model.
 Additionally, at each node in each tree, a random subset of the total features are considered as candidates for splitting in order to decrease the correlation between trees.
 A typical rule-of-thumb is to consider only $\left\lfloor\sqrt{p}\right\rfloor$ features at each split, where $p$ is the total number of features.
@@ -116,6 +116,7 @@ They found that, given a set of parameters derived from the peak X-ray flux as o
 To build our classification model, we use the random forest classifier as implemented in the scikit-learn package for machine learning in Python \citep{pedregosa_scikit-learn_2011}.
 Using the predicted peak temperatures, emission measure slopes, time lags, and maximum cross-correlations from \citetalias{barnes_understanding_2019}, we train a single random forest classifier composed of \py[manager_ml]|rf_options['n_estimators']| trees each with a maximum depth of \py[manager_ml]|rf_options['max_depth']|.
 At each node, $\left\lfloor\sqrt{\py[manager_ml]|f'{int(X.shape[1]):.0f}'|}\right\rfloor=\py[manager_ml]|f'{int(np.sqrt(X.shape[1])):.0f}'|$ possible split candidates are randomly selected from the $15\,\textup{time lags} + 15\,\textup{cross-correlations} + 1\,\textup{peak temperature} + 1\,\textup{emission measure slope}=32$ total features.
+\added{While \citetalias{barnes_understanding_2019} only discussed 31 synthetic features (15 time lags, 15 maximum cross-correlation values, 1 emission measure slope), here we have calculated $T_{peak}$ for our synthetic emission measure distributions as well such that we have 32 features in our synthetic data set and 32 in our observational data set.}
 We note that all of these features are likely to be correlated with one another to some extent.
 In \autoref{sec:feature-combos}, we examine how training our model on different combinations of these features impacts our predictions.
 
@@ -129,7 +130,7 @@ This ensures we do not have an imbalance in the number of points in each class w
 In total, we mask \py[manager_ml]|f'{100 * (1 - X.shape[0]/(3 * 500 * 500)):.2f}'|$\%$ of the total pixels from all three heating frequency cases for our simulated features used for training our classification models.
 The heating frequency label or class is numerically encoded as 0 (high), 1 (intermediate), or 2 (low) and similarly stacked to create a single response vector $Y$ of dimension $n\times1$.
 
-We apply a $2/3-1/3$ train-test split to $X$ and $Y$ such that approximately $1/3$ of the samples are reserved for model evaluation to ensure that our model has not overfit the data.
+We apply a $2/3-1/3$ train-test split to $X$ and $Y$ such that approximately $1/3$ of the samples are reserved for model evaluation to ensure that our model has not overfit the data\footnote{As an additional check, we applied random permutations cross-validation for five different iterations and found that misclassification error on each resulting test set was comparable to the out-of-bag error computed by the random forest classifier for a single $2/3-1/3$ split.}.
 This produces four separate matrices: $X_\textup{train},Y_\textup{train},X_\textup{test},Y_\textup{test}$.
 The data are not centered to a mean of 0 or scaled to unit standard deviation.
 By transforming the data in this manner, we are treating each pixel in the image as an independent sample with $p$ associated features per sample.
@@ -177,7 +178,7 @@ We apply the train-test-predict procedure described above to all four cases list
 In case A, the random forest classifier is trained only on the features related to the emission measure distribution, the emission measure slope, $a$, and the peak temperature, $T_{peak}$, such that the $X$ and $X^\prime$ have dimensions $n\times2$ and $n^\prime\times2$, respectively.
 In case B, the classifier is trained on the time lags and maximum cross-correlations for all 15 channel pairs for a total of $p=30$ features while in case C, every feature (emission measure slope, peak temperature, 15 time lags, 15 maximum cross-correlations) is used such that $p=32$.
 We discuss case D in \autoref{sec:feature-importance}.
-The fourth column in \autoref{tab:cases} lists the misclassification error as evaluated on the test set, $X_\textup{test},Y_\textup{test}$ and the fifth, sixth, and seventh columns show the fraction of pixels classified as high-, intermediate-, and low-frequency.
+The fourth column in \autoref{tab:cases} lists the misclassification error as evaluated on the test set, $X_\textup{test},Y_\textup{test}$ and the fifth, sixth, and seventh columns show the fraction of pixels classified as high-, intermediate-, and low-frequency, respectively.
 
 % spell-checker: disable %
 \begin{pycode}[manager_ml]
@@ -243,6 +244,9 @@ After computing the predicted heating frequency for $X^\prime$, the resulting cl
 The rows denote the different feature subsets as given in \autoref{tab:cases} and the columns correspond to the different heating frequency classes.
 The class probability, as computed by the scikit-learn package, in each pixel is the mean class probability of all trees in the random forest classifier.
 The class probability for an individual tree is the proportion of all training samples at the terminal node that belong to that class.
+\added{The class probability in each pixel provides a measure of the confidence of the classifier in assigning a given heating frequency label to that pixel.
+If one heating frequency has a class probability close to 1, the other two classes will be, by definition, close to 0, and the confidence of the classification is high.
+If the class probability for each heating frequency is $1/3$, the classifier is not able to distinguish which heating frequency is most probable in that pixel.}
 
 % spell-checker: disable %
 \begin{pycode}[manager_ml]

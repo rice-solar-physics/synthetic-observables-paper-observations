@@ -84,10 +84,11 @@ The technique presented here offers a very promising and widely applicable metho
 %                                   Acknowledgment                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \acknowledgments
-This research makes use of SunPy, an open-source and free community-developed solar data analysis package written in Python \citep{the_sunpy_community_sunpy_2020}. 
+This research makes use of \added{version 0.9.5 \citep{stuart_mumford_2018_2155946}} of sunpy, an open-source and free community-developed solar data analysis package written in Python \citep{the_sunpy_community_sunpy_2020}.
+\added{We use v0.9.5 in this work to maintain consistency with the software environment used in \citetalias{barnes_understanding_2019} which was completed prior to the v1.0 release of sunpy.}
 SJB and WTB were supported by the NSF through CAREER award AGS-1450230.
-WTB was supported by NASA’s Hinode program.
-Hinode is a Japanese mission developed and launched by ISAS/JAXA with NAOJ as a domestic partner and NASA and STFC (UK) as international partners.
+WTB was supported by NASA’s \textit{Hinode} program.
+\textit{Hinode} is a Japanese mission developed and launched by ISAS/JAXA with NAOJ as a domestic partner and NASA and STFC (UK) as international partners.
 It is operated by these agencies in cooperation with ESA and NSC (Norway).
 The work of NMV was supported by the NASA Supporting Research program.
 The complete source of this paper, including the data, code, and instructions for training the classification model, can be found at \href{https://github.com/rice-solar-physics/synthetic-observables-paper-observations}{github.com/rice-solar-physics/synthetic-observables-paper-observations}.
@@ -101,17 +102,17 @@ The complete source of this paper, including the data, code, and instructions fo
 %                                   Software                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \software{
-    astropy \citep{the_astropy_collaboration_astropy_2018},
-	dask \citep{rocklin_dask:_2015},
-	drms \citep{glogowski_drms_2019},
-    matplotlib \citep{hunter_matplotlib_2007},
-	numpy \citep{harris_array_2020},
-	PythonTeX \citep{poore_pythontex_2015},
-    scikit-learn \citep[v0.20.1][]{pedregosa_scikit-learn_2011},
-	seaborn \citep{michael_waskom_2018_1313201},
-	scipy \citep{jones_scipy_2001},
+    astropy \citep[v3.1.0,][]{the_astropy_collaboration_astropy_2018,the_astropy_collaboration_2018_4080996},
+	dask \citep[v1.0.0,][]{rocklin_dask:_2015},
+	drms \citep[v0.5,][]{glogowski_drms_2019,kolja_glogowski_2019_2572850},
+    matplotlib \citep[v3.0.2,][]{hunter_matplotlib_2007,thomas_a_caswell_2018_1482099},
+	numpy \citep[v1.15.4,][]{harris_array_2020},
+	PythonTeX \citep[v0.16,][]{poore_pythontex_2015},
+    scikit-learn \citep[v0.20,][]{pedregosa_scikit-learn_2011,olivier_grisel_2019_2582066},
+	seaborn \citep[v0.9.0,][]{michael_waskom_2018_1313201},
+	scipy \citep[v1.1.0,][]{virtanen_scipy_2020, pauli_virtanen_2018_1241501},
 	SolarSoftware \citep{freeland_data_1998},
-    sunpy \citep[v0.9.5][]{stuart_mumford_2018_2155946},
+    sunpy \citep[v0.9.5,][]{stuart_mumford_2018_2155946}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

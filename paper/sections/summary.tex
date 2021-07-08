@@ -3,14 +3,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions and Summary}\label{sec:conclusions}
 
+%% Paper 1 summary (1 paragraph!)
+
+\added{In \citetalias{barnes_understanding_2019}, we carried out a series of numerical simulations to understand how the frequency of energy deposition is manifested in observable signatures in quiescent active regions.
+By combining potential field extrapolations, efficient hydrodynamic modeling, and our novel and efficient forward modeling pipeline, we produced AIA images of \AR{} NOAA 1158 for all six EUV channels for $\approx8$ h of simulation time for high-, intermediate-, and low-frequency heating.
+From these simulated intensities, we computed the emission measure slope and the time lag for all possible AIA channel pairs in each pixel of the \AR{} for all heating frequencies.
+We found that the emission measure slope becomes increasingly shallow as heating frequency decreases, but as the heating frequency increases, the distribution of slopes peaks at higher values and becomes more broad.
+Additionally, as the heating frequency decreased, the spatial distribution of time lags was increasingly determined by the distribution of loop lengths over the \AR{}.
+Importantly, we also found that negative time lags in channel pairs where the second channel is 131 \AA{} provide a possible diagnostic for $\ge10$ MK plasma.}
+
 In this paper, the second in our series on constraining nanoflare heating properties, we have used predicted diagnostics from \citetalias{barnes_understanding_2019} to systematically classify each pixel of \AR{} NOAA 1158 in terms of frequency of energy deposition.
-In particular, we first collect 12 hours of full-resolution SDO/AIA observations of NOAA 1158 in six EUV channels: 94, 131, 171, 193, 211, and 335 \AA.
+In particular, we first collect 12 h of full-resolution SDO/AIA observations of NOAA 1158 in six EUV channels: 94, 131, 171, 193, 211, and 335 \AA.
 We then co-align each image to a single time such that a given pixel in each image corresponds to approximately the same spatial coordinate and then crop the image to an area of $500\arcsec$-by-$500\arcsec$ centered on the \AR{}.
 
-Next, we compute two diagnostics from these observed intensities: the emission measure slope and the time lag.
-We time-average the intensities of all six channels and use the method \citet{hannah_differential_2012} to compute the emission measure distribution in each pixel of the \AR{}.
-We then compute the emission measure slope, $a$, by fitting $\log_{10}\textup{EM}\sim a\log_{10}T$ over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$. 
-Next, we apply the time-lag analysis of \citet{viall_evidence_2012} to the full 12 hours of observations of NOAA 1158 and compute the time lag, $\tau_{AB}$, and maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{} for all possible ``hot-cool'' pairs of the six EUV channels, 15 in total.
+Next, we time-average the intensities of all six channels and use the method \citet{hannah_differential_2012} to compute the emission measure distribution in each pixel of the \AR{}.
+We compute the peak temperature of the emission measure distribution, $T_{peak}$, as well as the emission measure slope, $a$, by fitting $\log_{10}\textup{EM}\sim a\log_{10}T$ over the temperature range $8\times10^5\,\textup{K}\le T < T_{peak}$. 
+Additionally, we apply the time-lag analysis of \citet{viall_evidence_2012} to the full 12 h of observations of NOAA 1158 and compute the time lag, $\tau_{AB}$, and maximum cross-correlation, $\max\mathcal{C}_{AB}$, in each pixel of the \AR{} for all possible pairs of the six EUV channels, 15 in total.
 
 Finally, we train a random forest classifier using the predicted emission measure slopes, peak temperatures, time lags, and cross-correlations for three different heating frequencies from \citetalias{barnes_understanding_2019}.
 We then use our trained model to classify each observed pixel as consistent with either high-, intermediate-, or low-frequency heating (where the frequency is parameterized relative to the loop cooling time) and map the heating frequency across the entire \AR{}.
