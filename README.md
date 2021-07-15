@@ -33,11 +33,11 @@ Next, build the paper using LaTeX and PythonTeX. You will need to install the Py
 
 ```shell
 $ cd paper
-$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error -shell-escape -enable-write18 paper.tex
-$ pythontex --interpreter "python:$CONDA_PREFIX/bin/python"
-$ bibtex paper.tex
-$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error -shell-escape -enable-write18 paper.tex
-$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error -shell-escape -enable-write18 paper.tex
+$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error paper.tex
+$ pythontex --interpreter python:python paper.tex
+$ bibtex paper
+$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error paper.tex
+$ pdflatex -synctex=1 -interaction=nonstopmode -file-line-error paper.tex
 ```
 
 This may take several minutes. You can find the built PDF in `paper/paper.pdf`.

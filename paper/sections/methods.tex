@@ -431,7 +431,7 @@ cbar.outline.set_linewidth(0.5)
 fig_timelags = manager_timelags.save_figure('timelags')
 fig_timelags.caption = r'Time lag maps of \AR{} NOAA 1158 for all 15 channel pairs. The value of each pixel indicates the temporal offset, in seconds, which maximizes the cross-correlation \citepalias[see Appendix C of][]{barnes_understanding_2019}. The range of the colorbar is $\pm6000$ s. If $\max\mathcal{C}_{AB}<0.1$, the pixel is masked and colored white. Each map has been cropped to emphasize the core of the \AR{} such that the bottom left corner and top right corner of each image correspond to $(-440\arcsec,-380\arcsec)$ and $(-185\arcsec,-125\arcsec)$, respectively.'
 fig_timelags.figure_env_name = 'figure*'
-fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_timelags.figure_width = r'\columnwidth' if is_onecolumn() else r'1.8\columnwidth'
 fig_timelags.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_timelags|
@@ -524,7 +524,7 @@ cbar.outline.set_linewidth(0.5)
 fig_correlations = manager_timelags.save_figure('correlations')
 fig_correlations.caption = r'Same as \autoref{fig:timelags} except here we show the maximum value of the cross-correlation, $\max\mathcal{C}_{AB}$, for each channel pair.'
 fig_correlations.figure_env_name = 'figure*'
-fig_correlations.figure_width = r'\columnwidth' if is_onecolumn() else r'2\columnwidth'
+fig_correlations.figure_width = r'\columnwidth' if is_onecolumn() else r'1.8\columnwidth'
 fig_correlations.fig_str = fig_str
 \end{pycode}
 \py[manager_timelags]|fig_correlations|
