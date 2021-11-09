@@ -1,5 +1,9 @@
 # Understanding Heating in Active Region Cores through Machine Learning II. Classifying Observations
 
+- [arXiv](https://arxiv.org/abs/2107.07612)
+- [ApJ](https://iopscience.iop.org/article/10.3847/1538-4357/ac1514/pdf)
+- [ADS](https://ui.adsabs.harvard.edu/abs/2021ApJ...919..132B/abstract)
+
 ## Authors
 
 * W. T. Barnes, *NRC Postdoctoral Research Associate, Naval Research Laboratory*
